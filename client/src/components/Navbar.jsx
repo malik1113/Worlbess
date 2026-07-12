@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom"
+import { useCart } from "../context/CartContext"
 
 function Navbar() {
+  const { cartCount } = useCart()
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-yellow-600/30">
       <div className="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
@@ -28,8 +30,17 @@ function Navbar() {
             Contact
           </Link>
 
-          <Link to="/cart" className="text-yellow-500">
+          <Link
+            to="/cart"
+            className="flex items-center gap-2 text-yellow-500"
+          >
             Cart
+
+            {cartCount > 0 && (
+              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-yellow-500 px-2 text-xs font-bold text-black">
+                {cartCount}
+              </span>
+            )}
           </Link>
         </div>
       </div>

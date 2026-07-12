@@ -1,8 +1,10 @@
 import { Link, useParams } from "react-router-dom"
 import products from "../data/products"
+import { useCart } from "../context/CartContext"
 
 function ProductDetail() {
   const { id } = useParams()
+  const { addToCart } = useCart()
 
   const product = products.find(
     (item) => item.id === Number(id)
@@ -70,6 +72,7 @@ function ProductDetail() {
             <button
               type="button"
               disabled={!product.inStock}
+              onClick={() => addToCart(product)}
               className="rounded-full bg-yellow-500 px-8 py-3 text-black disabled:opacity-40"
             >
               Add to Cart
