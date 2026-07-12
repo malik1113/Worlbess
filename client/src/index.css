@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+:root {
+  --worlbess-black: #111111;
+  --worlbess-green: #2E8B57;
+  --worlbess-gold: #D4AF37;
+}
+
+body {
+  margin: 0;
+  background: var(--worlbess-black);
+  color: white;
+  font-family: Arial, sans-serif;
+}
