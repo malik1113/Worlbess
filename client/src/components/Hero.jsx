@@ -51,8 +51,9 @@ function Hero() {
 
 
           <motion.button
-            className="mt-8 px-10 py-4 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black transition"
+            className="mt-8 px-10 py-4 border border-yellow-500 rounded-full text-yellow-500 hover:bg-yellow-500 hover:text-black transition duration-300 shadow-lg"
             whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300 }}
           >
             Shop Collection
           </motion.button>
@@ -61,18 +62,30 @@ function Hero() {
 
 
         {/* RIGHT SIDE - GLOBE */}
-        <div className="flex justify-center">
+        <div className="relative flex justify-center">
+            <div className="absolute inset-0 z-0 m-auto h-72 w-72 rounded-full bg-yellow-500/20 blur-3xl"></div>
 
-          <motion.img
-            src={globe}
-            alt="Worlbess Globe"
-            className="w-[400px]"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5 }}
-          />
-
-        </div>
+            <motion.img
+                src={globe}
+                alt="Earth glowing in space for Worlbess"
+                className="relative z-10 w-full max-w-[560px] rounded-full"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{
+                opacity: 1,
+                scale: 1,
+                y: [0, -10, 0],
+                }}
+                transition={{
+                opacity: { duration: 1.5 },
+                scale: { duration: 1.5 },
+                y: {
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                },
+                }}
+            />
+            </div>
 
 
       </motion.div>
