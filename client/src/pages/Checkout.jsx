@@ -1,9 +1,10 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useCart } from "../context/CartContext"
 
 function Checkout() {
-  const { cartItems, subtotal } = useCart()
+  const { cartItems, cartCount, subtotal, clearCart } = useCart()
+  const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
     email: "",
@@ -29,18 +30,31 @@ function Checkout() {
 
   function handleSubmit(event) {
     event.preventDefault()
-
+  
     if (!formData.ageConfirmed) {
-      window.alert("You must confirm that you meet the legal age requirement.")
+      window.alert(
+        "You must confirm that you meet the legal age requirement."
+      )
       return
     }
-
-    console.log("Checkout information:", formData)
-    console.log("Order items:", cartItems)
-
-    window.alert(
-      "Checkout form is working. Payment processing will be connected later."
-    )
+  
+    const orderNumber = `WRL-${Date.now()
+      .toString()
+      .slice(-8)}`
+  
+    const order = {
+      orderNumber,
+      customerName: formData.firstName,
+      email: formData.email,
+      itemCount: cartCount,
+      total: subtotal,
+    }
+  
+    clearCart()
+  
+    navigate("/order-confirmation", {
+      state: { order },
+    })
   }
 
   if (cartItems.length === 0) {
