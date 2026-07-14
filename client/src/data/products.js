@@ -9,7 +9,7 @@ const products = [
       image: premiumLeaf,
       description: "Premium hand-selected leaf with rich character.",
       featured: true,
-      inStock: true,
+      stock: 50,
     },
     {
       id: 2,
@@ -19,7 +19,7 @@ const products = [
       image: grabba,
       description: "Carefully prepared grabba with consistent quality.",
       featured: true,
-      inStock: true,
+      stock: 50,
     },
     {
       id: 3,
@@ -29,7 +29,7 @@ const products = [
       image: "",
       description: "A premium storage solution for freshness and organization.",
       featured: true,
-      inStock: true,
+      stock: 50,
     },
     {
       id: 4,
@@ -39,7 +39,7 @@ const products = [
       image: "",
       description: "Premium Worlbess apparel featuring the heritage collection.",
       featured: true,
-      inStock: true,
+      stock: 50,
     },
   ]
   
