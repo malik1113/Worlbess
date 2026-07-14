@@ -30,7 +30,7 @@ function Navbar() {
             onClick={closeMenu}
             className="text-2xl font-serif tracking-wider text-yellow-500 md:text-3xl"
           >
-            WORLBESS
+            WORLBESS GRABBA
           </Link>
 
           {/* DESKTOP NAVIGATION */}

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import homeImage from "../assets/products/home-image.png"
 
 function BrandStory() {
   return (
@@ -6,24 +7,28 @@ function BrandStory() {
       <div className="max-w-7xl mx-auto px-8 grid lg:grid-cols-2 gap-14 items-center">
 
         <motion.div
-          className="min-h-[420px] rounded-2xl border border-yellow-500/20 bg-gradient-to-br from-[#1b1b1b] to-black flex items-center justify-center"
+          className="relative min-h-[420px] rounded-2xl overflow-hidden border border-yellow-500/20"
           initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="text-center px-8">
+          <img
+            src={homeImage}
+            alt="Worlbess heritage tobacco craftsmanship"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+          <div className="absolute bottom-0 left-0 z-10 p-8">
             <p className="text-yellow-500 uppercase tracking-[0.35em] text-sm">
               Heritage
             </p>
 
-            <h3 className="mt-5 text-4xl font-serif text-white">
+            <h3 className="mt-3 text-4xl font-serif text-white">
               Ancient Craftsmanship
             </h3>
-
-            <p className="mt-4 text-gray-400">
-              Brand photography coming soon
-            </p>
           </div>
         </motion.div>
 

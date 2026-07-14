@@ -24,7 +24,7 @@ function Hero() {
             animate={{ scale: 1 }}
             transition={{ duration: 1 }}
           >
-            WORLBESS
+            WORLBESS GRABBA
           </motion.h1>
 
 

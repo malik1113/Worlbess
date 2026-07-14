@@ -1,10 +1,12 @@
+import premiumLeaf from "../assets/products/premium-leaf.png"
+import grabba from "../assets/products/grabba-image.png"
 const products = [
     {
       id: 1,
       name: "Worlbess Premium Leaf",
       category: "Leaf",
       price: 24.99,
-      image: "",
+      image: premiumLeaf,
       description: "Premium hand-selected leaf with rich character.",
       featured: true,
       inStock: true,
@@ -14,7 +16,7 @@ const products = [
       name: "Worlbess Grabba",
       category: "Grabba",
       price: 14.99,
-      image: "",
+      image: grabba,
       description: "Carefully prepared grabba with consistent quality.",
       featured: true,
       inStock: true,

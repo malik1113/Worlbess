@@ -1,5 +1,6 @@
 import { motion } from "framer-motion"
 import { Link } from "react-router-dom"
+import aboutImage from "../assets/story/story-image.png"
 
 function About() {
   return (
@@ -32,23 +33,27 @@ function About() {
           </motion.div>
 
           <motion.div
-            className="flex min-h-[360px] items-center justify-center rounded-3xl border border-yellow-500/20 bg-gradient-to-br from-[#1d1d1d] to-black p-10"
+            className="relative min-h-[360px] overflow-hidden rounded-3xl border border-yellow-500/20"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1 }}
           >
-            <div className="text-center">
+            <img
+              src={aboutImage}
+              alt="Traditional Worlbess tobacco craftsmanship"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+            <div className="absolute bottom-0 left-0 z-10 p-10">
               <p className="text-sm uppercase tracking-[0.4em] text-yellow-500">
                 Heritage
               </p>
 
-              <h2 className="mt-5 text-4xl font-serif">
+              <h2 className="mt-5 text-4xl font-serif text-white">
                 Ancient Craftsmanship
               </h2>
-
-              <p className="mt-4 text-gray-400">
-                Custom Worlbess heritage artwork coming soon
-              </p>
             </div>
           </motion.div>
 
