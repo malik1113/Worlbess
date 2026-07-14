@@ -1,11 +1,11 @@
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
+import connectDB from "./config/db.js"
 
 dotenv.config()
 
 const app = express()
-
 const PORT = process.env.PORT || 3001
 
 app.use(cors())
@@ -18,6 +18,12 @@ app.get("/", (req, res) => {
   })
 })
 
-app.listen(PORT, () => {
-  console.log(`Worlbess server running on http://localhost:${PORT}`)
-})
+const startServer = async () => {
+  await connectDB()
+
+  app.listen(PORT, () => {
+    console.log(`Worlbess server running on http://localhost:${PORT}`)
+  })
+}
+
+startServer()
