@@ -3,8 +3,11 @@ import { Link, useNavigate } from "react-router-dom"
 import { useCart } from "../context/CartContext"
 
 function Checkout() {
+  const API_URL = import.meta.env.VITE_API_URL
   const { cartItems, cartCount, subtotal, clearCart } = useCart()
   const navigate = useNavigate()
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
     email: "",
@@ -30,6 +33,10 @@ function Checkout() {
 
   async function handleSubmit(event) {
     event.preventDefault()
+  
+    if (isSubmitting) {
+      return
+    }
   
     if (!formData.ageConfirmed) {
       window.alert(
@@ -58,7 +65,9 @@ function Checkout() {
     }
   
     try {
-      const response = await fetch("http://localhost:3001/api/orders", {
+      setIsSubmitting(true)
+  
+      const response = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,6 +100,8 @@ function Checkout() {
     } catch (error) {
       console.error("Checkout failed:", error)
       window.alert(error.message)
+    } finally {
+      setIsSubmitting(false)
     }
   }
   return (
@@ -316,9 +327,10 @@ function Checkout() {
 
             <button
               type="submit"
-              className="mt-8 w-full rounded-full bg-yellow-500 px-8 py-4 font-semibold text-black hover:bg-yellow-400 transition"
+              disabled={isSubmitting}
+              className="mt-8 w-full rounded-full bg-yellow-500 px-8 py-4 font-semibold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Continue to Payment
+              {isSubmitting ? "Placing Order..." : "Place Order"}
             </button>
           </form>
 

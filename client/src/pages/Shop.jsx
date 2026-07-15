@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
+const API_URL = import.meta.env.VITE_API_URL
+
 const categories = ["All", "Leaf", "Grabba", "Accessories", "Apparel"]
 
 function Shop() {
@@ -16,7 +18,7 @@ function Shop() {
         setIsLoading(true)
         setError("")
 
-        const response = await fetch("http://localhost:3001/api/products")
+        const response = await fetch(`${API_URL}/api/products`)
 
         if (!response.ok) {
           throw new Error("Unable to load products")

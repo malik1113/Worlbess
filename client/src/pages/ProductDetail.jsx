@@ -6,6 +6,8 @@ function ProductDetail() {
   const { id } = useParams()
   const { addToCart } = useCart()
 
+  const API_URL = import.meta.env.VITE_API_URL
+
   const [product, setProduct] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
@@ -16,9 +18,7 @@ function ProductDetail() {
         setIsLoading(true)
         setError("")
 
-        const response = await fetch(
-          `http://localhost:3001/api/products/${id}`
-        )
+        const response = await fetch(`${API_URL}/api/products/${id}`)
 
         if (!response.ok) {
           throw new Error("Product not found")
