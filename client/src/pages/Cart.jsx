@@ -19,7 +19,7 @@ function Cart() {
             Your Cart
           </p>
 
-          <h1 className="mt-4 text-5xl font-serif">
+          <h1 className="mt-4 font-serif text-5xl">
             Your Cart Is Empty
           </h1>
 
@@ -29,7 +29,7 @@ function Cart() {
 
           <Link
             to="/shop"
-            className="mt-10 inline-block rounded-full bg-yellow-500 px-8 py-3 text-black hover:bg-yellow-400 transition"
+            className="mt-10 inline-block rounded-full bg-yellow-500 px-8 py-3 text-black transition hover:bg-yellow-400"
           >
             Continue Shopping
           </Link>
@@ -47,7 +47,7 @@ function Cart() {
               Your Selection
             </p>
 
-            <h1 className="mt-4 text-5xl font-serif">
+            <h1 className="mt-4 font-serif text-5xl">
               Shopping Cart
             </h1>
           </div>
@@ -55,7 +55,7 @@ function Cart() {
           <button
             type="button"
             onClick={clearCart}
-            className="text-sm text-gray-400 hover:text-yellow-500 transition"
+            className="text-sm text-gray-400 transition hover:text-yellow-500"
           >
             Clear Cart
           </button>
@@ -65,7 +65,7 @@ function Cart() {
           <section className="space-y-6">
             {cartItems.map((item) => (
               <article
-                key={item.id}
+                key={item._id}
                 className="grid gap-6 rounded-2xl border border-yellow-500/20 bg-[#111111] p-6 sm:grid-cols-[140px_1fr]"
               >
                 <div className="aspect-square overflow-hidden rounded-xl bg-[#1a1a1a]">
@@ -89,7 +89,7 @@ function Cart() {
                         {item.category}
                       </p>
 
-                      <h2 className="mt-2 text-2xl font-serif">
+                      <h2 className="mt-2 font-serif text-2xl">
                         {item.name}
                       </h2>
                     </div>
@@ -100,34 +100,41 @@ function Cart() {
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center overflow-hidden rounded-full border border-yellow-500/40">
-                      <button
-                        type="button"
-                        onClick={() => decreaseQuantity(item.id)}
-                        className="px-4 py-2 text-yellow-500 hover:bg-yellow-500 hover:text-black"
-                        aria-label={`Decrease ${item.name} quantity`}
-                      >
-                        −
-                      </button>
+                    <div>
+                      <div className="flex items-center overflow-hidden rounded-full border border-yellow-500/40">
+                        <button
+                          type="button"
+                          onClick={() => decreaseQuantity(item._id)}
+                          className="px-4 py-2 text-yellow-500 hover:bg-yellow-500 hover:text-black"
+                          aria-label={`Decrease ${item.name} quantity`}
+                        >
+                          −
+                        </button>
 
-                      <span className="min-w-12 text-center">
-                        {item.quantity}
-                      </span>
+                        <span className="min-w-12 text-center">
+                          {item.quantity}
+                        </span>
 
-                      <button
-                        type="button"
-                        onClick={() => increaseQuantity(item.id)}
-                        className="px-4 py-2 text-yellow-500 hover:bg-yellow-500 hover:text-black"
-                        aria-label={`Increase ${item.name} quantity`}
-                      >
-                        +
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => increaseQuantity(item._id)}
+                          disabled={item.quantity >= item.stock}
+                          className="px-4 py-2 text-yellow-500 hover:bg-yellow-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+                          aria-label={`Increase ${item.name} quantity`}
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      <p className="mt-2 text-sm text-gray-500">
+                        {item.stock - item.quantity} remaining
+                      </p>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-sm text-gray-400 hover:text-red-400 transition"
+                      onClick={() => removeFromCart(item._id)}
+                      className="text-sm text-gray-400 transition hover:text-red-400"
                     >
                       Remove
                     </button>
@@ -138,7 +145,7 @@ function Cart() {
           </section>
 
           <aside className="h-fit rounded-2xl border border-yellow-500/30 bg-[#111111] p-8">
-            <h2 className="text-3xl font-serif">
+            <h2 className="font-serif text-3xl">
               Order Summary
             </h2>
 
@@ -168,14 +175,14 @@ function Cart() {
 
             <Link
               to="/checkout"
-              className="mt-8 block rounded-full bg-yellow-500 px-8 py-4 text-center font-semibold text-black hover:bg-yellow-400 transition"
+              className="mt-8 block rounded-full bg-yellow-500 px-8 py-4 text-center font-semibold text-black transition hover:bg-yellow-400"
             >
               Proceed to Checkout
             </Link>
 
             <Link
               to="/shop"
-              className="mt-4 block text-center text-sm text-gray-400 hover:text-yellow-500 transition"
+              className="mt-4 block text-center text-sm text-gray-400 transition hover:text-yellow-500"
             >
               Continue Shopping
             </Link>
