@@ -28,7 +28,7 @@ function Checkout() {
     }))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
   
     if (!formData.ageConfirmed) {
@@ -38,52 +38,61 @@ function Checkout() {
       return
     }
   
-    const orderNumber = `WRL-${Date.now()
-      .toString()
-      .slice(-8)}`
+    const shippingAddress = [
+      formData.address,
+      formData.apartment,
+      `${formData.city}, ${formData.state} ${formData.zipCode}`,
+    ]
+      .filter(Boolean)
+      .join(", ")
   
-    const order = {
-      orderNumber,
-      customerName: formData.firstName,
+    const orderData = {
+      customerName: `${formData.firstName} ${formData.lastName}`.trim(),
       email: formData.email,
-      itemCount: cartCount,
-      total: subtotal,
+      phone: formData.phone,
+      shippingAddress,
+      items: cartItems.map((item) => ({
+        product: item._id,
+        quantity: item.quantity,
+      })),
     }
   
-    clearCart()
+    try {
+      const response = await fetch("http://localhost:3001/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      })
   
-    navigate("/order-confirmation", {
-      state: { order },
-    })
+      const data = await response.json()
+  
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to place the order.")
+      }
+  
+      clearCart()
+  
+      navigate("/order-confirmation", {
+        state: {
+          order: {
+            orderNumber: data.order._id,
+            customerName: data.order.customerName,
+            email: data.order.email,
+            itemCount: data.order.items.reduce(
+              (total, item) => total + item.quantity,
+              0
+            ),
+            total: data.order.total,
+          },
+        },
+      })
+    } catch (error) {
+      console.error("Checkout failed:", error)
+      window.alert(error.message)
+    }
   }
-
-  if (cartItems.length === 0) {
-    return (
-      <main className="min-h-screen bg-black px-8 pb-24 pt-32 text-white">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">
-            Checkout
-          </p>
-
-          <h1 className="mt-4 text-5xl font-serif">
-            Your Cart Is Empty
-          </h1>
-
-          <p className="mt-6 text-gray-400">
-            Add products to your cart before continuing to checkout.
-          </p>
-
-          <Link
-            to="/shop"
-            className="mt-10 inline-block rounded-full bg-yellow-500 px-8 py-3 text-black hover:bg-yellow-400 transition"
-          >
-            Return to Shop
-          </Link>
-        </div>
-      </main>
-    )
-  }
-
   return (
     <main className="min-h-screen bg-black px-8 pb-24 pt-32 text-white">
       <div className="mx-auto max-w-7xl">
@@ -321,7 +330,7 @@ function Checkout() {
             <div className="mt-8 space-y-5">
               {cartItems.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id}
                   className="flex justify-between gap-4 border-b border-white/10 pb-5"
                 >
                   <div>
