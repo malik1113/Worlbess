@@ -140,6 +140,48 @@ function AdminDashboard() {
       alert(error.message);
     }
   }
+  async function handleOrderStatusUpdate(orderId, status) {
+    const confirmed =
+      status !== "Cancelled" ||
+      window.confirm(
+        "Cancel this order?\n\nThe purchased quantities will be returned to inventory."
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setOrderError("");
+
+      const response = await fetch(
+        `${API_URL}/api/orders/admin/${orderId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to update order status.");
+      }
+
+      setOrders((currentOrders) =>
+        currentOrders.map((order) =>
+          order._id === orderId ? data.order : order
+        )
+      );
+    } catch (error) {
+      console.error("Order status update failed:", error);
+      setOrderError(error.message);
+    }
+  }
 
   useEffect(() => {
     if (isLoading) {
@@ -370,6 +412,51 @@ function AdminDashboard() {
                     <span className="text-xl font-semibold text-yellow-500">
                       ${order.total.toFixed(2)}
                     </span>
+                  </div>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    {order.status === "Pending" && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleOrderStatusUpdate(order._id, "Processing")
+                        }
+                        className="rounded-full border border-yellow-500/40 px-4 py-2 text-sm text-yellow-500 transition hover:bg-yellow-500 hover:text-black"
+                      >
+                        Mark Processing
+                      </button>
+                    )}
+
+                    {order.status === "Processing" && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleOrderStatusUpdate(order._id, "Completed")
+                        }
+                        className="rounded-full border border-green-500/40 px-4 py-2 text-sm text-green-400 transition hover:bg-green-500 hover:text-black"
+                      >
+                        Mark Completed
+                      </button>
+                    )}
+
+                    {order.status !== "Completed" &&
+                      order.status !== "Cancelled" && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleOrderStatusUpdate(order._id, "Cancelled")
+                          }
+                          className="rounded-full border border-red-500/40 px-4 py-2 text-sm text-red-400 transition hover:bg-red-500 hover:text-white"
+                        >
+                          Cancel Order
+                        </button>
+                      )}
+
+                    {(order.status === "Completed" ||
+                      order.status === "Cancelled") && (
+                      <p className="text-sm text-gray-500">
+                        No further actions are available for this order.
+                      </p>
+                    )}
                   </div>
                 </article>
               ))}
