@@ -276,7 +276,18 @@ function AdminDashboard() {
       </main>
     );
   }
+  const totalProducts = products.length;
 
+  const totalUnitsInStock = products.reduce(
+    (total, product) => total + product.stock,
+    0
+  );
+
+  const lowStockProducts = products.filter(
+    (product) => product.stock > 0 && product.stock <= 10
+  );
+
+  const outOfStockProducts = products.filter((product) => product.stock === 0);
   return (
     <main className="min-h-screen bg-black px-6 pb-24 pt-32 text-white">
       <div className="mx-auto max-w-7xl">
@@ -504,6 +515,73 @@ function AdminDashboard() {
               <h2 className="mt-2 text-3xl font-serif">Product Management</h2>
             </div>
 
+            <section className="mt-12">
+              <div>
+                <p className="text-sm uppercase tracking-[0.2em] text-yellow-500">
+                  Inventory
+                </p>
+
+                <h2 className="mt-2 text-3xl font-serif">Inventory Overview</h2>
+
+                <p className="mt-3 text-gray-400">
+                  Monitor product availability and identify stock issues.
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-2xl border border-yellow-500/20 bg-[#111111] p-6">
+                  <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
+                    Products
+                  </p>
+
+                  <p className="mt-4 text-4xl font-serif text-yellow-500">
+                    {totalProducts}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-yellow-500/20 bg-[#111111] p-6">
+                  <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
+                    Units in stock
+                  </p>
+
+                  <p className="mt-4 text-4xl font-serif text-yellow-500">
+                    {totalUnitsInStock}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-yellow-500/20 bg-[#111111] p-6">
+                  <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
+                    Low stock
+                  </p>
+
+                  <p
+                    className={`mt-4 text-4xl font-serif ${
+                      lowStockProducts.length > 0
+                        ? "text-yellow-500"
+                        : "text-green-400"
+                    }`}
+                  >
+                    {lowStockProducts.length}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-red-500/20 bg-[#111111] p-6">
+                  <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
+                    Out of stock
+                  </p>
+
+                  <p
+                    className={`mt-4 text-4xl font-serif ${
+                      outOfStockProducts.length > 0
+                        ? "text-red-400"
+                        : "text-green-400"
+                    }`}
+                  >
+                    {outOfStockProducts.length}
+                  </p>
+                </div>
+              </div>
+            </section>
             <button
               type="button"
               onClick={() => {
