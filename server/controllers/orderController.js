@@ -202,17 +202,13 @@ export const updateOrderStatus = async (req, res) => {
       }
 
       if (order.status === "Completed") {
-        const error = new Error(
-          "Completed orders cannot be changed."
-        )
+        const error = new Error("Completed orders cannot be changed.")
         error.statusCode = 409
         throw error
       }
 
       if (order.status === "Cancelled") {
-        const error = new Error(
-          "Cancelled orders cannot be changed."
-        )
+        const error = new Error("Cancelled orders cannot be changed.")
         error.statusCode = 409
         throw error
       }
@@ -234,8 +230,17 @@ export const updateOrderStatus = async (req, res) => {
         }
       }
 
-      order.status = status
-      updatedOrder = await order.save({ session })
+      updatedOrder = await Order.findByIdAndUpdate(
+        order._id,
+        {
+          $set: { status },
+        },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        }
+      )
     })
 
     await updatedOrder.populate("user", "name email role")
