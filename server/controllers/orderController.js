@@ -149,3 +149,24 @@ export const getMyOrders = async (req, res) => {
     })
   }
 }
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("user", "name email role")
+      .populate("items.product", "name image category stock")
+      .sort({ createdAt: -1 })
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    })
+  } catch (error) {
+    console.error(`Get all orders failed: ${error.message}`)
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to retrieve customer orders.",
+    })
+  }
+}
