@@ -27,6 +27,7 @@ function AdminDashboard() {
   const [productFormError, setProductFormError] = useState("");
 
   const { user, isLoading, token, isAuthenticated } = useAuth();
+  const [editingProductId, setEditingProductId] = useState(null);
 
   function handleProductFormChange(event) {
     const { name, value, type, checked } = event.target;
@@ -37,18 +38,24 @@ function AdminDashboard() {
     }));
   }
   async function handleCreateProduct(event) {
-    event.preventDefault()
-  
+    event.preventDefault();
+
     if (isSubmittingProduct) {
-      return
+      return;
     }
-  
+
     try {
-      setIsSubmittingProduct(true)
-      setProductFormError("")
-  
-      const response = await fetch(`${API_URL}/api/products`, {
-        method: "POST",
+      setIsSubmittingProduct(true);
+      setProductFormError("");
+
+      const requestUrl = editingProductId
+        ? `${API_URL}/api/products/${editingProductId}`
+        : `${API_URL}/api/products`;
+
+      const requestMethod = editingProductId ? "PUT" : "POST";
+
+      const response = await fetch(requestUrl, {
+        method: requestMethod,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -62,19 +69,24 @@ function AdminDashboard() {
           stock: Number(productForm.stock),
           featured: productForm.featured,
         }),
-      })
-  
-      const data = await response.json()
-  
+      });
+
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(data.message || "Unable to create product.")
+        throw new Error(data.message || "Unable to create product.");
       }
-  
-      setProducts((currentProducts) => [
-        data.product,
-        ...currentProducts,
-      ])
-  
+
+      setProducts((currentProducts) =>
+        editingProductId
+          ? currentProducts.map((product) =>
+              product._id === editingProductId
+                ? data.product
+                : product
+            )
+          : [data.product, ...currentProducts]
+      )
+
       setProductForm({
         name: "",
         category: "",
@@ -83,14 +95,15 @@ function AdminDashboard() {
         image: "",
         stock: "",
         featured: false,
-      })
-  
-      setShowProductForm(false)
+      });
+      
+      setEditingProductId(null)
+      setShowProductForm(false);
     } catch (error) {
-      console.error("Product creation failed:", error)
-      setProductFormError(error.message)
+      console.error("Product creation failed:", error);
+      setProductFormError(error.message);
     } finally {
-      setIsSubmittingProduct(false)
+      setIsSubmittingProduct(false);
     }
   }
 
@@ -221,9 +234,14 @@ function AdminDashboard() {
             </button>
           </div>
           {showProductForm && (
-            <form 
-            onSubmit={handleCreateProduct}
-            className="mt-8 rounded-2xl border border-yellow-500/20 bg-[#111111] p-6">
+            <form
+              onSubmit={handleCreateProduct}
+              className="mt-8 rounded-2xl border border-yellow-500/20 bg-[#111111] p-6"
+            >
+              <h3 className="mb-6 text-2xl font-serif text-yellow-500">
+                {editingProductId ? "Edit Product" : "Add New Product"}
+              </h3>
+
               {productFormError && (
                 <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-300">
                   {productFormError}
@@ -364,7 +382,13 @@ function AdminDashboard() {
                 disabled={isSubmittingProduct}
                 className="mt-8 rounded-full bg-yellow-500 px-6 py-3 font-semibold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isSubmittingProduct ? "Creating Product..." : "Create Product"}
+                {isSubmittingProduct
+                  ? editingProductId
+                    ? "Updating Product..."
+                    : "Creating Product..."
+                  : editingProductId
+                  ? "Update Product"
+                  : "Create Product"}
               </button>
             </form>
           )}
@@ -431,6 +455,22 @@ function AdminDashboard() {
                     <div className="flex gap-3">
                       <button
                         type="button"
+                        onClick={() => {
+                          setEditingProductId(product._id);
+
+                          setProductForm({
+                            name: product.name,
+                            category: product.category,
+                            price: String(product.price),
+                            description: product.description,
+                            image: product.image,
+                            stock: String(product.stock),
+                            featured: product.featured,
+                          });
+
+                          setProductFormError("");
+                          setShowProductForm(true);
+                        }}
                         className="rounded-full border border-yellow-500/40 px-4 py-2 text-sm text-yellow-500 transition hover:bg-yellow-500 hover:text-black"
                       >
                         Edit
