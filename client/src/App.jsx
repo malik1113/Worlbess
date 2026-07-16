@@ -13,6 +13,7 @@ import Footer from "./components/Footer"
 import OrderConfirmation from "./pages/OrderConfirmation"
 import Login from "./pages/Login"
 import Account from "./pages/Account"
+import AdminDashboard from "./pages/AdminDashboard"
 
 function App() {
   return (
@@ -30,7 +31,10 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />}
+          
+          
           
           />
         </Routes>
