@@ -105,3 +105,128 @@ export const getProductById = async (req, res) => {
       })
     }
   }
+  export const updateProduct = async (req, res) => {
+    try {
+      const product = await Product.findById(req.params.id)
+  
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: "Product not found.",
+        })
+      }
+  
+      const {
+        name,
+        category,
+        price,
+        description,
+        image,
+        stock,
+        featured,
+      } = req.body
+  
+      if (name !== undefined) {
+        if (!name.trim()) {
+          return res.status(400).json({
+            success: false,
+            message: "Product name cannot be empty.",
+          })
+        }
+  
+        product.name = name.trim()
+      }
+  
+      if (category !== undefined) {
+        if (!category.trim()) {
+          return res.status(400).json({
+            success: false,
+            message: "Product category cannot be empty.",
+          })
+        }
+  
+        product.category = category.trim()
+      }
+  
+      if (description !== undefined) {
+        if (!description.trim()) {
+          return res.status(400).json({
+            success: false,
+            message: "Product description cannot be empty.",
+          })
+        }
+  
+        product.description = description.trim()
+      }
+  
+      if (image !== undefined) {
+        if (!image.trim()) {
+          return res.status(400).json({
+            success: false,
+            message: "Product image cannot be empty.",
+          })
+        }
+  
+        product.image = image.trim()
+      }
+  
+      if (price !== undefined) {
+        const numericPrice = Number(price)
+  
+        if (!Number.isFinite(numericPrice) || numericPrice < 0) {
+          return res.status(400).json({
+            success: false,
+            message: "Price must be a valid non-negative number.",
+          })
+        }
+  
+        product.price = numericPrice
+      }
+  
+      if (stock !== undefined) {
+        const numericStock = Number(stock)
+  
+        if (!Number.isInteger(numericStock) || numericStock < 0) {
+          return res.status(400).json({
+            success: false,
+            message: "Stock must be a valid non-negative integer.",
+          })
+        }
+  
+        product.stock = numericStock
+      }
+  
+      if (featured !== undefined) {
+        if (typeof featured !== "boolean") {
+          return res.status(400).json({
+            success: false,
+            message: "Featured must be true or false.",
+          })
+        }
+  
+        product.featured = featured
+      }
+  
+      const updatedProduct = await product.save()
+  
+      res.status(200).json({
+        success: true,
+        message: "Product updated successfully.",
+        product: updatedProduct,
+      })
+    } catch (error) {
+      console.error(`Update product failed: ${error.message}`)
+  
+      if (error.name === "CastError") {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid product ID.",
+        })
+      }
+  
+      res.status(500).json({
+        success: false,
+        message: "Unable to update product.",
+      })
+    }
+  }
