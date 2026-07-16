@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useCart } from "../context/CartContext"
+import { useAuth } from "../context/AuthContext"
 
 function Checkout() {
   const API_URL = import.meta.env.VITE_API_URL
   const { cartItems, cartCount, subtotal, clearCart } = useCart()
+  const { token } = useAuth()
   const navigate = useNavigate()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -71,6 +73,7 @@ function Checkout() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(orderData),
       })

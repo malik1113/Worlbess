@@ -95,6 +95,7 @@ export const createOrder = async (req, res) => {
       const orders = await Order.create(
         [
           {
+            user: req.user._id,
             customerName: customerName.trim(),
             email: email.trim().toLowerCase(),
             phone: phone.trim(),
