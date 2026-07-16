@@ -11,7 +11,88 @@ function AdminDashboard() {
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const [showProductForm, setShowProductForm] = useState(false);
+
+  const [productForm, setProductForm] = useState({
+    name: "",
+    category: "",
+    price: "",
+    description: "",
+    image: "",
+    stock: "",
+    featured: false,
+  });
+
+  const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
+  const [productFormError, setProductFormError] = useState("");
+
+  const { user, isLoading, token, isAuthenticated } = useAuth();
+
+  function handleProductFormChange(event) {
+    const { name, value, type, checked } = event.target;
+
+    setProductForm((currentForm) => ({
+      ...currentForm,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  }
+  async function handleCreateProduct(event) {
+    event.preventDefault()
+  
+    if (isSubmittingProduct) {
+      return
+    }
+  
+    try {
+      setIsSubmittingProduct(true)
+      setProductFormError("")
+  
+      const response = await fetch(`${API_URL}/api/products`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: productForm.name,
+          category: productForm.category,
+          price: Number(productForm.price),
+          description: productForm.description,
+          image: productForm.image,
+          stock: Number(productForm.stock),
+          featured: productForm.featured,
+        }),
+      })
+  
+      const data = await response.json()
+  
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to create product.")
+      }
+  
+      setProducts((currentProducts) => [
+        data.product,
+        ...currentProducts,
+      ])
+  
+      setProductForm({
+        name: "",
+        category: "",
+        price: "",
+        description: "",
+        image: "",
+        stock: "",
+        featured: false,
+      })
+  
+      setShowProductForm(false)
+    } catch (error) {
+      console.error("Product creation failed:", error)
+      setProductFormError(error.message)
+    } finally {
+      setIsSubmittingProduct(false)
+    }
+  }
 
   useEffect(() => {
     if (isLoading) {
@@ -130,12 +211,163 @@ function AdminDashboard() {
 
             <button
               type="button"
+              onClick={() => {
+                setShowProductForm((currentValue) => !currentValue);
+                setProductFormError("");
+              }}
               className="rounded-full bg-yellow-500 px-6 py-3 font-semibold text-black transition hover:bg-yellow-400"
             >
-              Add Product
+              {showProductForm ? "Close Form" : "Add Product"}
             </button>
           </div>
+          {showProductForm && (
+            <form 
+            onSubmit={handleCreateProduct}
+            className="mt-8 rounded-2xl border border-yellow-500/20 bg-[#111111] p-6">
+              {productFormError && (
+                <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-300">
+                  {productFormError}
+                </div>
+              )}
 
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label htmlFor="name" className="block text-sm text-gray-300">
+                    Product name
+                  </label>
+
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    value={productForm.name}
+                    onChange={handleProductFormChange}
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="category"
+                    className="block text-sm text-gray-300"
+                  >
+                    Category
+                  </label>
+
+                  <input
+                    id="category"
+                    name="category"
+                    type="text"
+                    required
+                    value={productForm.category}
+                    onChange={handleProductFormChange}
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="price"
+                    className="block text-sm text-gray-300"
+                  >
+                    Price
+                  </label>
+
+                  <input
+                    id="price"
+                    name="price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    required
+                    value={productForm.price}
+                    onChange={handleProductFormChange}
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="stock"
+                    className="block text-sm text-gray-300"
+                  >
+                    Stock
+                  </label>
+
+                  <input
+                    id="stock"
+                    name="stock"
+                    type="number"
+                    min="0"
+                    step="1"
+                    required
+                    value={productForm.stock}
+                    onChange={handleProductFormChange}
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <label htmlFor="image" className="block text-sm text-gray-300">
+                  Image path
+                </label>
+
+                <input
+                  id="image"
+                  name="image"
+                  type="text"
+                  required
+                  value={productForm.image}
+                  onChange={handleProductFormChange}
+                  placeholder="/images/products/example.png"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
+                />
+              </div>
+
+              <div className="mt-5">
+                <label
+                  htmlFor="description"
+                  className="block text-sm text-gray-300"
+                >
+                  Description
+                </label>
+
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="5"
+                  required
+                  value={productForm.description}
+                  onChange={handleProductFormChange}
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
+                />
+              </div>
+
+              <label className="mt-5 flex items-center gap-3">
+                <input
+                  name="featured"
+                  type="checkbox"
+                  checked={productForm.featured}
+                  onChange={handleProductFormChange}
+                  className="h-5 w-5"
+                />
+
+                <span className="text-sm text-gray-300">
+                  Feature this product
+                </span>
+              </label>
+
+              <button
+                type="submit"
+                disabled={isSubmittingProduct}
+                className="mt-8 rounded-full bg-yellow-500 px-6 py-3 font-semibold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmittingProduct ? "Creating Product..." : "Create Product"}
+              </button>
+            </form>
+          )}
           {isLoadingProducts && (
             <p className="mt-8 text-gray-400">Loading products...</p>
           )}
