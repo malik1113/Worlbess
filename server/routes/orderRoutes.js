@@ -5,11 +5,18 @@ import {
   createOrder,
   getAllOrders,
   getMyOrders,
+  updateOrderStatus,
 } from "../controllers/orderController.js"
 
 const router = express.Router()
 
 router.get("/admin", protect, adminOnly, getAllOrders)
+router.patch(
+  "/admin/:id/status",
+  protect,
+  adminOnly,
+  updateOrderStatus
+)
 router.get("/my-orders", protect, getMyOrders)
 router.post("/", protect, createOrder)
 

@@ -170,3 +170,93 @@ export const getAllOrders = async (req, res) => {
     })
   }
 }
+export const updateOrderStatus = async (req, res) => {
+  const session = await mongoose.startSession()
+
+  try {
+    const { status } = req.body
+
+    const allowedStatuses = [
+      "Pending",
+      "Processing",
+      "Completed",
+      "Cancelled",
+    ]
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid order status.",
+      })
+    }
+
+    let updatedOrder
+
+    await session.withTransaction(async () => {
+      const order = await Order.findById(req.params.id).session(session)
+
+      if (!order) {
+        const error = new Error("Order not found.")
+        error.statusCode = 404
+        throw error
+      }
+
+      if (order.status === "Completed") {
+        const error = new Error(
+          "Completed orders cannot be changed."
+        )
+        error.statusCode = 409
+        throw error
+      }
+
+      if (order.status === "Cancelled") {
+        const error = new Error(
+          "Cancelled orders cannot be changed."
+        )
+        error.statusCode = 409
+        throw error
+      }
+
+      if (order.status === status) {
+        updatedOrder = order
+        return
+      }
+
+      if (status === "Cancelled") {
+        for (const item of order.items) {
+          await Product.findByIdAndUpdate(
+            item.product,
+            {
+              $inc: { stock: item.quantity },
+            },
+            { session }
+          )
+        }
+      }
+
+      order.status = status
+      updatedOrder = await order.save({ session })
+    })
+
+    await updatedOrder.populate("user", "name email role")
+    await updatedOrder.populate(
+      "items.product",
+      "name image category stock"
+    )
+
+    res.status(200).json({
+      success: true,
+      message: `Order status updated to ${updatedOrder.status}.`,
+      order: updatedOrder,
+    })
+  } catch (error) {
+    console.error(`Update order status failed: ${error.message}`)
+
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Unable to update the order status.",
+    })
+  } finally {
+    await session.endSession()
+  }
+}
