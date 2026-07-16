@@ -12,6 +12,7 @@ import Checkout from "./pages/Checkout"
 import Footer from "./components/Footer"
 import OrderConfirmation from "./pages/OrderConfirmation"
 import Login from "./pages/Login"
+import Account from "./pages/Account"
 
 function App() {
   return (
@@ -27,9 +28,10 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/order-confirmation" 
-          element={<OrderConfirmation />}
+          <Route path="/order-confirmation" element={<OrderConfirmation />}
+          
           />
         </Routes>
         <Footer />
