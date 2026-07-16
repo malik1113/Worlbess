@@ -80,12 +80,10 @@ function AdminDashboard() {
       setProducts((currentProducts) =>
         editingProductId
           ? currentProducts.map((product) =>
-              product._id === editingProductId
-                ? data.product
-                : product
+              product._id === editingProductId ? data.product : product
             )
           : [data.product, ...currentProducts]
-      )
+      );
 
       setProductForm({
         name: "",
@@ -96,14 +94,46 @@ function AdminDashboard() {
         stock: "",
         featured: false,
       });
-      
-      setEditingProductId(null)
+
+      setEditingProductId(null);
       setShowProductForm(false);
     } catch (error) {
       console.error("Product creation failed:", error);
       setProductFormError(error.message);
     } finally {
       setIsSubmittingProduct(false);
+    }
+  }
+
+  async function handleDeleteProduct(productId, productName) {
+    const confirmed = window.confirm(
+      `Delete "${productName}"?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/products/${productId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to delete product.");
+      }
+
+      setProducts((currentProducts) =>
+        currentProducts.filter((product) => product._id !== productId)
+      );
+    } catch (error) {
+      console.error("Delete product failed:", error);
+      alert(error.message);
     }
   }
 
@@ -478,6 +508,9 @@ function AdminDashboard() {
 
                       <button
                         type="button"
+                        onClick={() =>
+                          handleDeleteProduct(product._id, product.name)
+                        }
                         className="rounded-full border border-red-500/40 px-4 py-2 text-sm text-red-400 transition hover:bg-red-500 hover:text-white"
                       >
                         Delete
