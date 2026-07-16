@@ -29,6 +29,10 @@ function AdminDashboard() {
   const { user, isLoading, token, isAuthenticated } = useAuth();
   const [editingProductId, setEditingProductId] = useState(null);
 
+  const [orders, setOrders] = useState([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(true);
+  const [orderError, setOrderError] = useState("");
+
   function handleProductFormChange(event) {
     const { name, value, type, checked } = event.target;
 
@@ -159,6 +163,41 @@ function AdminDashboard() {
       });
     }
   }, [isAuthenticated, isLoading, navigate, user]);
+
+  useEffect(() => {
+    async function loadOrders() {
+      if (!token || user?.role !== "admin") {
+        return;
+      }
+
+      try {
+        setIsLoadingOrders(true);
+        setOrderError("");
+
+        const response = await fetch(`${API_URL}/api/orders/admin`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Unable to load orders.");
+        }
+
+        setOrders(data.orders);
+      } catch (error) {
+        console.error("Admin order loading failed:", error);
+        setOrderError(error.message);
+      } finally {
+        setIsLoadingOrders(false);
+      }
+    }
+
+    loadOrders();
+  }, [API_URL, token, user?.role]);
+
   useEffect(() => {
     async function loadProducts() {
       try {
@@ -210,7 +249,133 @@ function AdminDashboard() {
             Manage products, inventory, and customer orders.
           </p>
         </div>
+        <section className="mt-16">
+          <div>
+            <p className="text-sm uppercase tracking-[0.2em] text-yellow-500">
+              Fulfillment
+            </p>
 
+            <h2 className="mt-2 text-3xl font-serif">Order Management</h2>
+
+            <p className="mt-3 text-gray-400">
+              Review customer orders and monitor fulfillment status.
+            </p>
+          </div>
+
+          {isLoadingOrders && (
+            <p className="mt-8 text-gray-400">Loading orders...</p>
+          )}
+
+          {orderError && (
+            <div className="mt-8 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-300">
+              {orderError}
+            </div>
+          )}
+
+          {!isLoadingOrders && !orderError && orders.length === 0 && (
+            <div className="mt-8 rounded-2xl border border-yellow-500/20 bg-[#111111] p-8">
+              <p className="text-gray-400">
+                No customer orders are currently available.
+              </p>
+            </div>
+          )}
+
+          {!isLoadingOrders && !orderError && orders.length > 0 && (
+            <div className="mt-8 space-y-6">
+              {orders.map((order) => (
+                <article
+                  key={order._id}
+                  className="rounded-2xl border border-yellow-500/20 bg-[#111111] p-6"
+                >
+                  <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
+                        Order
+                      </p>
+
+                      <p className="mt-2 font-mono text-sm text-yellow-500">
+                        {order._id}
+                      </p>
+
+                      <p className="mt-4 text-lg font-medium text-white">
+                        {order.customerName}
+                      </p>
+
+                      <p className="mt-1 text-sm text-gray-400">
+                        {order.email}
+                      </p>
+
+                      <p className="mt-1 text-sm text-gray-400">
+                        {order.phone}
+                      </p>
+                    </div>
+
+                    <div className="md:text-right">
+                      <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
+                        Status
+                      </p>
+
+                      <p className="mt-2 text-lg font-semibold text-yellow-500">
+                        {order.status}
+                      </p>
+
+                      <p className="mt-4 text-sm text-gray-400">
+                        {new Date(order.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 rounded-xl border border-white/10 bg-black/40 p-5">
+                    <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
+                      Shipping address
+                    </p>
+
+                    <p className="mt-2 text-gray-300">
+                      {order.shippingAddress}
+                    </p>
+                  </div>
+
+                  <div className="mt-6">
+                    <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
+                      Items
+                    </p>
+
+                    <div className="mt-3 divide-y divide-white/10">
+                      {order.items.map((item) => (
+                        <div
+                          key={`${order._id}-${item.product?._id || item.name}`}
+                          className="flex items-center justify-between gap-4 py-4"
+                        >
+                          <div>
+                            <p className="font-medium text-white">
+                              {item.name}
+                            </p>
+
+                            <p className="mt-1 text-sm text-gray-400">
+                              Quantity: {item.quantity}
+                            </p>
+                          </div>
+
+                          <p className="text-gray-300">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-between border-t border-white/10 pt-5">
+                    <span className="text-gray-400">Order total</span>
+
+                    <span className="text-xl font-semibold text-yellow-500">
+                      ${order.total.toFixed(2)}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
         <section className="mt-12 grid gap-6 md:grid-cols-3">
           <div className="rounded-2xl border border-yellow-500/20 bg-[#111111] p-6">
             <p className="text-sm uppercase tracking-[0.2em] text-gray-400">
