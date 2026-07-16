@@ -126,3 +126,26 @@ export const createOrder = async (req, res) => {
     await session.endSession()
   }
 }
+export const getMyOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({
+      user: req.user._id,
+    })
+      .populate("user", "name email")
+      .populate("items.product", "name image category")
+      .sort({ createdAt: -1 })
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    })
+  } catch (error) {
+    console.error(`Get customer orders failed: ${error.message}`)
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to retrieve your orders.",
+    })
+  }
+}
