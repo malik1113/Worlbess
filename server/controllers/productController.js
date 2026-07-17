@@ -250,3 +250,65 @@ export const deleteProduct = async (req, res) => {
     });
   }
 };
+export const adjustProductStock = async (req, res) => {
+  try {
+    const adjustment = Number(req.body.adjustment)
+
+    if (!Number.isInteger(adjustment) || adjustment === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Adjustment must be a non-zero integer.",
+      })
+    }
+
+    const product = await Product.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        stock: { $gte: -adjustment },
+      },
+      {
+        $inc: { stock: adjustment },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+
+    if (!product) {
+      const existingProduct = await Product.findById(req.params.id)
+
+      if (!existingProduct) {
+        return res.status(404).json({
+          success: false,
+          message: "Product not found.",
+        })
+      }
+
+      return res.status(409).json({
+        success: false,
+        message: "Stock adjustment would reduce inventory below zero.",
+      })
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Stock adjusted by ${adjustment}.`,
+      product,
+    })
+  } catch (error) {
+    console.error(`Adjust product stock failed: ${error.message}`)
+
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID.",
+      })
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to adjust product stock.",
+    })
+  }
+}
