@@ -570,6 +570,98 @@ function AdminDashboard() {
                     Out of stock
                   </p>
 
+                  <p className="mt-4 text-4xl font-serif text-yellow-500">
+                    {totalProducts}
+                  </p>
+                </div>
+
+                <section className="mt-8 grid gap-6 lg:grid-cols-2">
+                  <div className="rounded-2xl border border-yellow-500/20 bg-[#111111] p-6">
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.15em] text-yellow-500">
+                        Attention
+                      </p>
+
+                      <h3 className="mt-2 text-2xl font-serif">
+                        Low-Stock Products
+                      </h3>
+                    </div>
+
+                    {lowStockProducts.length === 0 ? (
+                      <p className="mt-6 text-gray-400">
+                        No products are currently low on stock.
+                      </p>
+                    ) : (
+                      <div className="mt-6 divide-y divide-white/10">
+                        {lowStockProducts.map((product) => (
+                          <div
+                            key={product._id}
+                            className="flex items-center justify-between gap-4 py-4"
+                          >
+                            <div>
+                              <p className="font-medium text-white">
+                                {product.name}
+                              </p>
+
+                              <p className="mt-1 text-sm text-gray-400">
+                                {product.category}
+                              </p>
+                            </div>
+
+                            <p className="font-semibold text-yellow-500">
+                              {product.stock} remaining
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-2xl border border-red-500/20 bg-[#111111] p-6">
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.15em] text-red-400">
+                        Urgent
+                      </p>
+
+                      <h3 className="mt-2 text-2xl font-serif">
+                        Out-of-Stock Products
+                      </h3>
+                    </div>
+
+                    {outOfStockProducts.length === 0 ? (
+                      <p className="mt-6 text-gray-400">
+                        All products are currently in stock.
+                      </p>
+                    ) : (
+                      <div className="mt-6 divide-y divide-white/10">
+                        {outOfStockProducts.map((product) => (
+                          <div
+                            key={product._id}
+                            className="flex items-center justify-between gap-4 py-4"
+                          >
+                            <div>
+                              <p className="font-medium text-white">
+                                {product.name}
+                              </p>
+
+                              <p className="mt-1 text-sm text-gray-400">
+                                {product.category}
+                              </p>
+                            </div>
+
+                            <p className="font-semibold text-red-400">
+                              Out of stock
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </section>
+                <div className="rounded-2xl border border-yellow-500/20 bg-[#111111] p-6">
+                  <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
+                    Units in stock
+                  </p>
                   <p
                     className={`mt-4 text-4xl font-serif ${
                       outOfStockProducts.length > 0
