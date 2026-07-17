@@ -25,6 +25,8 @@ app.use(express.json())
 app.use("/api/products", productRoutes)
 app.use("/api/orders", orderRoutes)
 app.use("/api/auth", authRoutes)
+app.use(express.json())
+app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
 app.get("/", (req, res) => {
   res.status(200).json({

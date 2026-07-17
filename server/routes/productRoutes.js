@@ -11,6 +11,9 @@ import {
 import { protect } from "../middleware/authMiddleware.js";
 import { adminOnly } from "../middleware/adminMiddleware.js";
 
+import upload from "../config/upload.js"
+import { uploadProductImage } from "../controllers/uploadController.js"
+
 const router = express.Router();
 
 router.patch(
@@ -18,6 +21,14 @@ router.patch(
   protect,
   adminOnly,
   adjustProductStock
+)
+
+router.post(
+  "/upload",
+  protect,
+  adminOnly,
+  upload.single("image"),
+  uploadProductImage
 )
 
 router.post("/", protect, adminOnly, createProduct);
