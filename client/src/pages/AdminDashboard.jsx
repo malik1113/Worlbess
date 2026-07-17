@@ -33,6 +33,8 @@ function AdminDashboard() {
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
   const [orderError, setOrderError] = useState("");
 
+  const [adjustingProductId, setAdjustingProductId] = useState(null);
+
   function handleProductFormChange(event) {
     const { name, value, type, checked } = event.target;
 
@@ -182,6 +184,43 @@ function AdminDashboard() {
       setOrderError(error.message);
     }
   }
+  async function handleAdjustInventory(productId, adjustment) {
+    try {
+      setErrorMessage("");
+      setAdjustingProductId(productId);
+
+      const response = await fetch(
+        `${API_URL}/api/products/${productId}/stock`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            adjustment,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to adjust inventory.");
+      }
+
+      setProducts((currentProducts) =>
+        currentProducts.map((product) =>
+          product._id === productId ? data.product : product
+        )
+      );
+    } catch (error) {
+      console.error("Inventory adjustment failed:", error);
+      setErrorMessage(error.message);
+    } finally {
+      setAdjustingProductId(null);
+    }
+  }
 
   useEffect(() => {
     if (isLoading) {
@@ -288,6 +327,7 @@ function AdminDashboard() {
   );
 
   const outOfStockProducts = products.filter((product) => product.stock === 0);
+
   return (
     <main className="min-h-screen bg-black px-6 pb-24 pt-32 text-white">
       <div className="mx-auto max-w-7xl">
@@ -528,7 +568,7 @@ function AdminDashboard() {
                 </p>
               </div>
 
-              <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="rounded-2xl border border-yellow-500/20 bg-[#111111] p-6">
                   <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
                     Products
@@ -892,17 +932,57 @@ function AdminDashboard() {
 
                     <p className="text-gray-300">${product.price.toFixed(2)}</p>
 
-                    <p
-                      className={
-                        product.stock === 0
-                          ? "text-red-400"
-                          : product.stock <= 10
-                          ? "text-yellow-500"
-                          : "text-gray-300"
-                      }
-                    >
-                      {product.stock}
-                    </p>
+                    <div>
+                      <p
+                        className={
+                          product.stock === 0
+                            ? "font-semibold text-red-400"
+                            : product.stock <= 10
+                            ? "font-semibold text-yellow-500"
+                            : "text-gray-300"
+                        }
+                      >
+                        {product.stock}
+                      </p>
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleAdjustInventory(product._id, -5)}
+                          disabled={product.stock < 5 || adjustingProductId === product._id}
+                          className="rounded-full border border-white/15 px-3 py-1 text-xs text-gray-300 transition hover:border-red-500/50 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-30"
+                        >
+                          -5
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAdjustInventory(product._id, -1)}
+                          disabled={product.stock < 1 || adjustingProductId === product._id}
+                          className="rounded-full border border-white/15 px-3 py-1 text-xs text-gray-300 transition hover:border-red-500/50 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-30"
+                        >
+                          -1
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAdjustInventory(product._id, 1)}
+                          disabled={adjustingProductId === product._id}
+                          className="rounded-full border border-white/15 px-3 py-1 text-xs text-gray-300 transition hover:border-green-500/50 hover:text-green-400"
+                        >
+                          +1
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAdjustInventory(product._id, 5)}
+                          disabled={adjustingProductId === product._id}
+                          className="rounded-full border border-white/15 px-3 py-1 text-xs text-gray-300 transition hover:border-green-500/50 hover:text-green-400"
+                        >
+                          +5
+                        </button>
+                      </div>
+                    </div>
 
                     <div className="flex gap-3">
                       <button
