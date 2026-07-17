@@ -26,6 +26,10 @@ function AdminDashboard() {
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
   const [productFormError, setProductFormError] = useState("");
 
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState("");
+
   const { user, isLoading, token, isAuthenticated } = useAuth();
   const [editingProductId, setEditingProductId] = useState(null);
 
@@ -43,6 +47,40 @@ function AdminDashboard() {
       [name]: type === "checkbox" ? checked : value,
     }));
   }
+  async function uploadProductImage() {
+    if (!selectedImageFile) {
+      return productForm.image;
+    }
+
+    try {
+      setIsUploadingImage(true);
+      setImageUploadError("");
+
+      const formData = new FormData();
+      formData.append("image", selectedImageFile);
+
+      const response = await fetch(`${API_URL}/api/products/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Image upload failed.");
+      }
+
+      return data.image;
+    } catch (error) {
+      setImageUploadError(error.message);
+      throw error;
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }
   async function handleCreateProduct(event) {
     event.preventDefault();
 
@@ -53,6 +91,7 @@ function AdminDashboard() {
     try {
       setIsSubmittingProduct(true);
       setProductFormError("");
+      const imagePath = await uploadProductImage();
 
       const requestUrl = editingProductId
         ? `${API_URL}/api/products/${editingProductId}`
@@ -71,7 +110,7 @@ function AdminDashboard() {
           category: productForm.category,
           price: Number(productForm.price),
           description: productForm.description,
-          image: productForm.image,
+          image: imagePath,
           stock: Number(productForm.stock),
           featured: productForm.featured,
         }),
@@ -101,6 +140,8 @@ function AdminDashboard() {
         featured: false,
       });
 
+      setSelectedImageFile(null);
+      setImageUploadError("");
       setEditingProductId(null);
       setShowProductForm(false);
     } catch (error) {
@@ -788,9 +829,9 @@ function AdminDashboard() {
                     id="price"
                     name="price"
                     type="number"
+                    required
                     min="0"
                     step="0.01"
-                    required
                     value={productForm.price}
                     onChange={handleProductFormChange}
                     className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
@@ -818,24 +859,39 @@ function AdminDashboard() {
                   />
                 </div>
               </div>
-
               <div className="mt-5">
-                <label htmlFor="image" className="block text-sm text-gray-300">
-                  Image path
+                <label
+                  htmlFor="productImage"
+                  className="block text-sm text-gray-300"
+                >
+                  Upload product image
                 </label>
 
                 <input
-                  id="image"
-                  name="image"
-                  type="text"
-                  required
-                  value={productForm.image}
-                  onChange={handleProductFormChange}
-                  placeholder="/images/products/example.png"
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
-                />
-              </div>
+                  id="productImage"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] || null;
 
+                    setSelectedImageFile(file);
+                    setImageUploadError("");
+                  }}
+                  className="mt-2 block w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-sm text-gray-300 file:mr-4 file:rounded-full file:border-0 file:bg-yellow-500 file:px-4 file:py-2 file:font-semibold file:text-black hover:file:bg-yellow-400"
+                />
+
+                {selectedImageFile && (
+                  <p className="mt-2 text-sm text-green-400">
+                    Selected: {selectedImageFile.name}
+                  </p>
+                )}
+
+                {imageUploadError && (
+                  <p className="mt-2 text-sm text-red-400">
+                    {imageUploadError}
+                  </p>
+                )}
+              </div>
               <div className="mt-5">
                 <label
                   htmlFor="description"
@@ -871,10 +927,12 @@ function AdminDashboard() {
 
               <button
                 type="submit"
-                disabled={isSubmittingProduct}
+                disabled={isSubmittingProduct || isUploadingImage}
                 className="mt-8 rounded-full bg-yellow-500 px-6 py-3 font-semibold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isSubmittingProduct
+                {isUploadingImage
+                  ? "Uploading Image..."
+                  : isSubmittingProduct
                   ? editingProductId
                     ? "Updating Product..."
                     : "Creating Product..."
@@ -918,14 +976,30 @@ function AdminDashboard() {
                     key={product._id}
                     className="grid gap-4 px-6 py-5 md:grid-cols-[2fr_1fr_1fr_1fr_auto] md:items-center"
                   >
-                    <div>
-                      <p className="font-medium text-white">{product.name}</p>
+                    <div className="flex min-w-0 items-center gap-4">
+                      <img
+                        src={
+                          product.image?.startsWith("/uploads/")
+                            ? `${API_URL}${product.image}`
+                            : product.image
+                        }
+                        alt={product.name}
+                        className="h-16 w-16 shrink-0 rounded-xl border border-white/10 object-cover"
+                      />
 
-                      <p className="mt-1 text-sm text-gray-400">
-                        {product.featured
-                          ? "Featured product"
-                          : "Standard product"}
-                      </p>
+                      <div className="min-w-0">
+                        <p className="font-medium text-white">{product.name}</p>
+
+                        <p className="mt-1 text-sm text-gray-400">
+                          {product.featured
+                            ? "Featured product"
+                            : "Standard product"}
+                        </p>
+
+                        <p className="mt-1 max-w-xs truncate text-xs text-gray-500">
+                          {product.image}
+                        </p>
+                      </div>
                     </div>
 
                     <p className="text-gray-300">{product.category}</p>
@@ -949,7 +1023,10 @@ function AdminDashboard() {
                         <button
                           type="button"
                           onClick={() => handleAdjustInventory(product._id, -5)}
-                          disabled={product.stock < 5 || adjustingProductId === product._id}
+                          disabled={
+                            product.stock < 5 ||
+                            adjustingProductId === product._id
+                          }
                           className="rounded-full border border-white/15 px-3 py-1 text-xs text-gray-300 transition hover:border-red-500/50 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-30"
                         >
                           -5
@@ -958,7 +1035,10 @@ function AdminDashboard() {
                         <button
                           type="button"
                           onClick={() => handleAdjustInventory(product._id, -1)}
-                          disabled={product.stock < 1 || adjustingProductId === product._id}
+                          disabled={
+                            product.stock < 1 ||
+                            adjustingProductId === product._id
+                          }
                           className="rounded-full border border-white/15 px-3 py-1 text-xs text-gray-300 transition hover:border-red-500/50 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-30"
                         >
                           -1
