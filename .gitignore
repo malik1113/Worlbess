@@ -9,3 +9,7 @@ node_modules/
 
 # Build files
 dist/
+
+# Uploaded product images
+server/uploads/products/*
+!server/uploads/products/.gitkeep
