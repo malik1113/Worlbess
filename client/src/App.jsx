@@ -1,19 +1,20 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Navbar from "./components/Navbar"
+import Navbar from "./components/Navbar";
 
-import Home from "./pages/Home"
-import Shop from "./pages/Shop"
-import About from "./pages/About"
-import Contact from "./pages/Contact"
-import ProductDetail from "./pages/ProductDetail"
-import Cart from "./pages/Cart"
-import Checkout from "./pages/Checkout"
-import Footer from "./components/Footer"
-import OrderConfirmation from "./pages/OrderConfirmation"
-import Login from "./pages/Login"
-import Account from "./pages/Account"
-import AdminDashboard from "./pages/AdminDashboard"
+import Home from "./pages/Home";
+import Shop from "./pages/Shop";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import ProductDetail from "./pages/ProductDetail";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Footer from "./components/Footer";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import Login from "./pages/Login";
+import Account from "./pages/Account";
+import AdminDashboard from "./pages/AdminDashboard";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 function App() {
   return (
@@ -32,16 +33,13 @@ function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/order-confirmation" element={<OrderConfirmation />}
-          
-          
-          
-          />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
         </Routes>
         <Footer />
       </div>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,13 +1,19 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useCart } from "../context/CartContext"
 import { useAuth } from "../context/AuthContext"
+import { loadStripe } from "@stripe/stripe-js"
 
 function Checkout() {
   const API_URL = import.meta.env.VITE_API_URL
-  const { cartItems, cartCount, subtotal, clearCart } = useCart()
+  const stripePromise = loadStripe(
+    import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+  )
+  const { cartItems, cartCount, subtotal, } = useCart()
   const { token } = useAuth()
-  const navigate = useNavigate()
+
+  console.log("JWT Token:", token)
+ 
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -40,6 +46,16 @@ function Checkout() {
       return
     }
   
+    if (!token) {
+      window.alert("Please log in before completing checkout.")
+      return
+    }
+  
+    if (cartItems.length === 0) {
+      window.alert("Your cart is empty.")
+      return
+    }
+  
     if (!formData.ageConfirmed) {
       window.alert(
         "You must confirm that you meet the legal age requirement."
@@ -69,7 +85,8 @@ function Checkout() {
     try {
       setIsSubmitting(true)
   
-      const response = await fetch(`${API_URL}/api/orders`, {
+      // Step 1: Create the Worlbess order in MongoDB.
+      const orderResponse = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -78,32 +95,52 @@ function Checkout() {
         body: JSON.stringify(orderData),
       })
   
-      const data = await response.json()
+      const orderDataResponse = await orderResponse.json()
   
-      if (!response.ok) {
-        throw new Error(data.message || "Unable to place the order.")
+      if (!orderResponse.ok) {
+        throw new Error(
+          orderDataResponse.message || "Unable to create the order."
+        )
       }
   
-      clearCart()
+      const orderId = orderDataResponse.order?._id
   
-      navigate("/order-confirmation", {
-        state: {
-          order: {
-            orderNumber: data.order._id,
-            customerName: data.order.customerName,
-            email: data.order.email,
-            itemCount: data.order.items.reduce(
-              (total, item) => total + item.quantity,
-              0
-            ),
-            total: data.order.total,
+      if (!orderId) {
+        throw new Error("The server did not return an order ID.")
+      }
+  
+      // Step 2: Create a Stripe Checkout Session for that order.
+      const paymentResponse = await fetch(
+        `${API_URL}/api/payments/create-checkout-session`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        },
-      })
+          body: JSON.stringify({
+            orderId,
+          }),
+        }
+      )
+  
+      const paymentData = await paymentResponse.json()
+  
+      if (!paymentResponse.ok) {
+        throw new Error(
+          paymentData.message || "Unable to start secure payment."
+        )
+      }
+  
+      if (!paymentData.url) {
+        throw new Error("Stripe did not return a Checkout URL.")
+      }
+  
+      // Step 3: Send the customer to Stripe's hosted payment page.
+      window.location.href = paymentData.url
     } catch (error) {
       console.error("Checkout failed:", error)
       window.alert(error.message)
-    } finally {
       setIsSubmitting(false)
     }
   }
@@ -333,7 +370,7 @@ function Checkout() {
               disabled={isSubmitting}
               className="mt-8 w-full rounded-full bg-yellow-500 px-8 py-4 font-semibold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? "Placing Order..." : "Place Order"}
+              {isSubmitting ? "Opening Secure Payment..." : "Continue to Payment"}
             </button>
           </form>
 
