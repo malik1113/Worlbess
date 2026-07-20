@@ -44,6 +44,16 @@ function Shop() {
     fetchProducts();
   }, []);
 
+  const clearAllFilters = () => {
+    setSearchTerm("");
+    setSelectedCategory("All");
+    setMinPrice("");
+    setMaxPrice("");
+    setAvailability("all");
+    setFeaturedOnly(false);
+    setSortOption("featured");
+  };
+
   const filteredProducts = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
@@ -144,6 +154,61 @@ function Shop() {
           />
         </div>
 
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {searchTerm && (
+            <span className="rounded-full bg-yellow-500/10 px-4 py-2 text-sm text-yellow-400">
+              Search: {searchTerm}
+            </span>
+          )}
+
+          {selectedCategory !== "All" && (
+            <span className="rounded-full bg-yellow-500/10 px-4 py-2 text-sm text-yellow-400">
+              Category: {selectedCategory}
+            </span>
+          )}
+
+          {minPrice && (
+            <span className="rounded-full bg-yellow-500/10 px-4 py-2 text-sm text-yellow-400">
+              Min: ${minPrice}
+            </span>
+          )}
+
+          {maxPrice && (
+            <span className="rounded-full bg-yellow-500/10 px-4 py-2 text-sm text-yellow-400">
+              Max: ${maxPrice}
+            </span>
+          )}
+
+          {availability !== "all" && (
+            <span className="rounded-full bg-yellow-500/10 px-4 py-2 text-sm text-yellow-400">
+              {availability === "in-stock" ? "In Stock" : "Out of Stock"}
+            </span>
+          )}
+
+          {featuredOnly && (
+            <span className="rounded-full bg-yellow-500/10 px-4 py-2 text-sm text-yellow-400">
+              Featured
+            </span>
+          )}
+        </div>
+
+        {(searchTerm ||
+          selectedCategory !== "All" ||
+          minPrice ||
+          maxPrice ||
+          availability !== "all" ||
+          featuredOnly) && (
+          <div className="mt-5 flex justify-center">
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="rounded-full border border-yellow-500 px-6 py-3 text-yellow-500 transition duration-300 hover:bg-yellow-500 hover:text-black"
+            >
+              Clear All Filters
+            </button>
+          </div>
+        )}
+        
         <div className="mt-12 flex flex-wrap justify-center gap-3">
           {categories.map((category) => (
             <button
@@ -234,7 +299,7 @@ function Shop() {
             <span className="text-sm text-white">Featured products only</span>
           </label>
         </div>
-        
+
         <div className="mt-8 flex justify-center">
           <div>
             <label htmlFor="product-sort" className="sr-only">
