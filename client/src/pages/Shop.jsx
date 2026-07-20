@@ -13,6 +13,7 @@ function Shop() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [availability, setAvailability] = useState("all");
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -71,8 +72,15 @@ function Shop() {
         (availability === "in-stock" && product.stock > 0) ||
         (availability === "out-of-stock" && product.stock === 0);
 
+      const matchesFeatured = !featuredOnly || product.featured === true;
+
       return (
-        matchesCategory && matchesSearch && matchesMinPrice && matchesMaxPrice
+        matchesCategory &&
+        matchesSearch &&
+        matchesMinPrice &&
+        matchesMaxPrice &&
+        matchesAvailability &&
+        matchesFeatured
       );
     });
 
@@ -102,6 +110,7 @@ function Shop() {
     minPrice,
     maxPrice,
     availability,
+    featuredOnly,
   ]);
 
   return (
@@ -213,6 +222,19 @@ function Shop() {
           </div>
         </div>
 
+        <div className="mt-8 flex justify-center">
+          <label className="flex cursor-pointer items-center gap-3 rounded-full border border-yellow-500/30 bg-[#111111] px-6 py-3">
+            <input
+              type="checkbox"
+              checked={featuredOnly}
+              onChange={(event) => setFeaturedOnly(event.target.checked)}
+              className="h-4 w-4 accent-yellow-500"
+            />
+
+            <span className="text-sm text-white">Featured products only</span>
+          </label>
+        </div>
+        
         <div className="mt-8 flex justify-center">
           <div>
             <label htmlFor="product-sort" className="sr-only">
