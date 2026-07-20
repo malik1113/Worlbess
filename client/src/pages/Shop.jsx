@@ -15,6 +15,7 @@ function Shop() {
   const [availability, setAvailability] = useState("all");
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -42,6 +43,14 @@ function Shop() {
     };
 
     fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const storedProducts = JSON.parse(
+      localStorage.getItem("recentlyViewedProducts") || "[]"
+    );
+
+    setRecentlyViewed(storedProducts);
   }, []);
 
   const clearAllFilters = () => {
@@ -429,6 +438,67 @@ function Shop() {
               Clear Filters
             </button>
           </div>
+        )}
+        
+        {recentlyViewed.length > 0 && (
+          <section className="mt-24 border-t border-yellow-500/20 pt-12">
+            <div className="text-center">
+              <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">
+                Continue Browsing
+              </p>
+
+              <h2 className="mt-3 font-serif text-3xl text-white">
+                Recently Viewed
+              </h2>
+            </div>
+
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {recentlyViewed.map((product) => (
+                <article
+                  key={product._id}
+                  className="overflow-hidden rounded-2xl border border-yellow-500/20 bg-[#111111]"
+                >
+                  <div className="aspect-square overflow-hidden bg-black">
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center px-6 text-center text-gray-500">
+                        Product image coming soon
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-5">
+                    <p className="text-sm uppercase tracking-widest text-yellow-500">
+                      {product.category}
+                    </p>
+
+                    <h3 className="mt-2 font-serif text-xl text-white">
+                      {product.name}
+                    </h3>
+
+                    <div className="mt-5 flex items-center justify-between gap-4">
+                      <span className="text-white">
+                        ${product.price.toFixed(2)}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/product/${product._id}`)}
+                        className="rounded-full border border-yellow-500 px-4 py-2 text-sm text-yellow-500 transition hover:bg-yellow-500 hover:text-black"
+                      >
+                        View Again
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </main>

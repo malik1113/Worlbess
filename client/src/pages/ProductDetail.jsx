@@ -37,6 +37,28 @@ function ProductDetail() {
     fetchProduct()
   }, [id])
 
+  useEffect(() => {
+    if (!product) {
+      return
+    }
+  
+    const storedProducts = JSON.parse(
+      localStorage.getItem("recentlyViewedProducts") || "[]"
+    )
+  
+    const updatedProducts = [
+      product,
+      ...storedProducts.filter(
+        (storedProduct) => storedProduct._id !== product._id
+      ),
+    ].slice(0, 6)
+  
+    localStorage.setItem(
+      "recentlyViewedProducts",
+      JSON.stringify(updatedProducts)
+    )
+  }, [product])
+  
   if (isLoading) {
     return (
       <main className="min-h-screen bg-black px-8 pt-32 text-white">
