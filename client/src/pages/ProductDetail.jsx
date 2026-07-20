@@ -1,3 +1,8 @@
+// ======================================================
+// RECENTLY VIEWED PRODUCTS
+// Saves viewed products to localStorage
+// Keeps newest product first and limits history to six
+// ======================================================
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useCart } from "../context/CartContext"

@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
 } from "react"
+import { useToast } from "./ToastContext.jsx"
 
 const CartContext = createContext(null)
 
@@ -45,6 +46,8 @@ function getProductId(product) {
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState(loadCartFromStorage)
 
+  const { showToast } = useToast()
+
   useEffect(() => {
     try {
       localStorage.setItem(
@@ -56,23 +59,43 @@ export function CartProvider({ children }) {
     }
   }, [cartItems])
 
+}
+  // ======================================================
+// CART ACTIONS
+// ======================================================
+
+// Add product to shopping cart
+// Displays toast notifications for success and stock errors
+function addToCart(product) {
   function addToCart(product) {
     const productId = getProductId(product)
-
-    if (!productId || product.stock <= 0) {
+  
+    if (!productId) {
+      showToast("Unable to add this product to the cart.", "error")
       return
     }
-
+  
+    if (product.stock <= 0) {
+      showToast(`${product.name} is out of stock.`, "error")
+      return
+    }
+  
+    let notificationMessage = `${product.name} added to cart.`
+    let notificationType = "success"
+  
     setCartItems((currentItems) => {
       const existingItem = currentItems.find(
         (item) => getProductId(item) === productId
       )
-
+  
       if (existingItem) {
         if (existingItem.quantity >= product.stock) {
+          notificationMessage = `Only ${product.stock} ${product.name} available.`
+          notificationType = "error"
+  
           return currentItems
         }
-
+  
         return currentItems.map((item) =>
           getProductId(item) === productId
             ? {
@@ -83,7 +106,7 @@ export function CartProvider({ children }) {
             : item
         )
       }
-
+  
       return [
         ...currentItems,
         {
@@ -93,8 +116,11 @@ export function CartProvider({ children }) {
         },
       ]
     })
+  
+    showToast(notificationMessage, notificationType)
   }
 
+  // Increase quantity of an existing cart item
   function increaseQuantity(productId) {
     setCartItems((currentItems) =>
       currentItems.map((item) => {
@@ -114,6 +140,8 @@ export function CartProvider({ children }) {
     )
   }
 
+
+  // Decrease quantity or remove item when quantity reaches zero
   function decreaseQuantity(productId) {
     setCartItems((currentItems) =>
       currentItems
@@ -129,6 +157,7 @@ export function CartProvider({ children }) {
     )
   }
 
+  // Remove an item completely from the shopping cart
   function removeFromCart(productId) {
     setCartItems((currentItems) =>
       currentItems.filter(
@@ -137,10 +166,15 @@ export function CartProvider({ children }) {
     )
   }
 
+  // Empty the shopping cart after successful checkout
   function clearCart() {
     setCartItems([])
   }
 
+
+  // ======================================================
+  // CART TOTALS
+  // ======================================================
   const cartCount = useMemo(
     () =>
       cartItems.reduce(

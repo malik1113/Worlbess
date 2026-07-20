@@ -5,6 +5,10 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const categories = ["All", "Leaf", "Grabba", "Accessories", "Apparel"];
 
+// ======================================================
+// SHOP FILTER STATE
+// ======================================================
+
 function Shop() {
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -53,6 +57,7 @@ function Shop() {
     setRecentlyViewed(storedProducts);
   }, []);
 
+  // Reset every active shop filter back to its default state
   const clearAllFilters = () => {
     setSearchTerm("");
     setSelectedCategory("All");
@@ -63,6 +68,10 @@ function Shop() {
     setSortOption("featured");
   };
 
+// ======================================================
+// FILTERING + SORTING
+// Applies every customer filter before rendering products
+// ======================================================
   const filteredProducts = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
@@ -439,7 +448,7 @@ function Shop() {
             </button>
           </div>
         )}
-        
+
         {recentlyViewed.length > 0 && (
           <section className="mt-24 border-t border-yellow-500/20 pt-12">
             <div className="text-center">
@@ -506,3 +515,14 @@ function Shop() {
 }
 
 export default Shop;
+{/* ================= Shop Search ================= */}
+{/* ================= Active Filter Summary ================= */}
+{/* ================= Product Categories ================= */}
+{/* ================= Price Range Filter ================= */}
+{/* ================= Availability Filter ================= */}
+{/* ================= Featured Products ================= */}
+{/* ================= Product Sorting ================= */}
+{/* ================= Product Count ================= */}
+{/* ================= Product Grid ================= */}
+{/* ================= No Products Found ================= */}
+{/* ================= Recently Viewed Products ================= */}
