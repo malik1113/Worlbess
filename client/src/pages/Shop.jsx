@@ -12,6 +12,7 @@ function Shop() {
   const [sortOption, setSortOption] = useState("featured");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [availability, setAvailability] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -65,6 +66,11 @@ function Shop() {
       const matchesMaxPrice =
         numericMaxPrice === null || product.price <= numericMaxPrice;
 
+      const matchesAvailability =
+        availability === "all" ||
+        (availability === "in-stock" && product.stock > 0) ||
+        (availability === "out-of-stock" && product.stock === 0);
+
       return (
         matchesCategory && matchesSearch && matchesMinPrice && matchesMaxPrice
       );
@@ -88,7 +94,15 @@ function Shop() {
           return 0;
       }
     });
-  }, [products, selectedCategory, searchTerm, sortOption, minPrice, maxPrice]);
+  }, [
+    products,
+    selectedCategory,
+    searchTerm,
+    sortOption,
+    minPrice,
+    maxPrice,
+    availability,
+  ]);
 
   return (
     <main className="min-h-screen bg-black px-8 pt-32 pb-24 text-white">
@@ -177,6 +191,25 @@ function Shop() {
               placeholder="No maximum"
               className="w-full rounded-full border border-yellow-500/30 bg-[#111111] px-5 py-3 text-white outline-none transition placeholder:text-gray-500 focus:border-yellow-500"
             />
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-center">
+          <div>
+            <label htmlFor="availability-filter" className="sr-only">
+              Filter by availability
+            </label>
+
+            <select
+              id="availability-filter"
+              value={availability}
+              onChange={(event) => setAvailability(event.target.value)}
+              className="rounded-full border border-yellow-500/30 bg-[#111111] px-6 py-3 text-white outline-none transition focus:border-yellow-500"
+            >
+              <option value="all">All products</option>
+              <option value="in-stock">In stock only</option>
+              <option value="out-of-stock">Out of stock only</option>
+            </select>
           </div>
         </div>
 
