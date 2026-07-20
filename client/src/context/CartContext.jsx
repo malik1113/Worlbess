@@ -45,7 +45,6 @@ function getProductId(product) {
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState(loadCartFromStorage)
-
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -59,43 +58,42 @@ export function CartProvider({ children }) {
     }
   }, [cartItems])
 
-}
   // ======================================================
-// CART ACTIONS
-// ======================================================
+  // CART ACTIONS
+  // ======================================================
 
-// Add product to shopping cart
-// Displays toast notifications for success and stock errors
-function addToCart(product) {
+  // Add product to shopping cart
+  // Displays toast notifications for success and stock errors
   function addToCart(product) {
     const productId = getProductId(product)
-  
+
     if (!productId) {
       showToast("Unable to add this product to the cart.", "error")
       return
     }
-  
+
     if (product.stock <= 0) {
       showToast(`${product.name} is out of stock.`, "error")
       return
     }
-  
+
     let notificationMessage = `${product.name} added to cart.`
     let notificationType = "success"
-  
+
     setCartItems((currentItems) => {
       const existingItem = currentItems.find(
         (item) => getProductId(item) === productId
       )
-  
+
       if (existingItem) {
         if (existingItem.quantity >= product.stock) {
-          notificationMessage = `Only ${product.stock} ${product.name} available.`
+          notificationMessage =
+            `Only ${product.stock} ${product.name} available.`
           notificationType = "error"
-  
+
           return currentItems
         }
-  
+
         return currentItems.map((item) =>
           getProductId(item) === productId
             ? {
@@ -106,7 +104,7 @@ function addToCart(product) {
             : item
         )
       }
-  
+
       return [
         ...currentItems,
         {
@@ -116,7 +114,7 @@ function addToCart(product) {
         },
       ]
     })
-  
+
     showToast(notificationMessage, notificationType)
   }
 
@@ -139,7 +137,6 @@ function addToCart(product) {
       })
     )
   }
-
 
   // Decrease quantity or remove item when quantity reaches zero
   function decreaseQuantity(productId) {
@@ -171,10 +168,10 @@ function addToCart(product) {
     setCartItems([])
   }
 
-
   // ======================================================
   // CART TOTALS
   // ======================================================
+
   const cartCount = useMemo(
     () =>
       cartItems.reduce(
