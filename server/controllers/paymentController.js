@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import stripe from "../config/stripe.js";
+import { sendOrderConfirmationEmail } from "../services/emailService.js";
 
 const fulfillCheckoutSession = async (sessionId) => {
   const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -24,17 +25,18 @@ const fulfillCheckoutSession = async (sessionId) => {
   }
 
   // Stripe can retry webhook deliveries. This makes fulfillment idempotent.
-  if (order.paymentStatus !== "Paid") {
-    order.paymentStatus = "Paid";
-    order.stripeCheckoutSessionId = session.id;
-    order.stripePaymentIntentId =
-      typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : session.payment_intent?.id || null;
-    order.paymentFailureMessage = null;
-    order.paidAt = new Date();
+  // Send the order confirmation only once.
+  if (!order.emailConfirmationSent) {
+    const emailResult = await sendOrderConfirmationEmail(order);
 
-    await order.save();
+    if (!emailResult.skipped) {
+      order.emailConfirmationSent = true;
+      order.emailConfirmationSentAt = new Date();
+
+      await order.save();
+
+      console.log(`Order confirmation email sent for order ${order._id}`);
+    }
   }
 
   return {
@@ -153,13 +155,10 @@ export const createCheckoutSession = async (req, res) => {
 };
 
 export const stripeWebhook = async (req, res) => {
-
   const signature = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
-    
-
     return res.status(500).json({
       success: false,
       message: "Webhook secret is not configured",
@@ -170,7 +169,6 @@ export const stripeWebhook = async (req, res) => {
 
   try {
     event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
-    
   } catch (error) {
     console.error("Stripe webhook signature error:", error.message);
 
@@ -184,8 +182,6 @@ export const stripeWebhook = async (req, res) => {
         const session = event.data.object;
 
         const result = await fulfillCheckoutSession(session.id);
-
-        
 
         console.log(`Stripe payment confirmed for session ${session.id}`);
 
@@ -307,11 +303,11 @@ export const verifyCheckoutSession = async (req, res) => {
       message: error.message,
       name: error.name,
       stack: error.stack,
-    })
-  
+    });
+
     return res.status(500).json({
       received: false,
       message: error.message,
-    })
+    });
   }
-}
+};

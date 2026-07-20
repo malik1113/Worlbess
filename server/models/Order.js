@@ -104,6 +104,16 @@ const orderSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    
+    emailConfirmationSent: {
+      type: Boolean,
+      default: false,
+    },
+    
+    emailConfirmationSentAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
