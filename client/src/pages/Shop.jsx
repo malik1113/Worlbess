@@ -208,7 +208,7 @@ function Shop() {
             </button>
           </div>
         )}
-        
+
         <div className="mt-12 flex flex-wrap justify-center gap-3">
           {categories.map((category) => (
             <button
@@ -342,6 +342,12 @@ function Shop() {
         )}
 
         {!isLoading && !error && (
+          <div className="mt-10 text-center text-sm text-gray-400">
+            Showing {filteredProducts.length} of {products.length} products
+          </div>
+        )}
+
+        {!isLoading && !error && (
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {filteredProducts.map((product) => (
               <article
@@ -405,9 +411,24 @@ function Shop() {
         )}
 
         {!isLoading && !error && filteredProducts.length === 0 && (
-          <p className="mt-16 text-center text-gray-400">
-            No products are currently available in this category.
-          </p>
+          <div className="mx-auto mt-16 max-w-xl rounded-2xl border border-yellow-500/20 bg-[#111111] p-8 text-center">
+            <h2 className="font-serif text-2xl text-white">
+              No products match your filters
+            </h2>
+
+            <p className="mt-3 text-gray-400">
+              Try changing your search, category, price range, or availability
+              options.
+            </p>
+
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="mt-6 rounded-full border border-yellow-500 px-6 py-3 text-yellow-500 transition hover:bg-yellow-500 hover:text-black"
+            >
+              Clear Filters
+            </button>
+          </div>
         )}
       </div>
     </main>
