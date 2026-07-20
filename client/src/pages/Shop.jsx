@@ -10,6 +10,8 @@ function Shop() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("featured");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -53,7 +55,19 @@ function Shop() {
         product.category.toLowerCase().includes(normalizedSearch) ||
         product.description.toLowerCase().includes(normalizedSearch);
 
-      return matchesCategory && matchesSearch;
+      const numericMinPrice = minPrice === "" ? null : Number(minPrice);
+
+      const numericMaxPrice = maxPrice === "" ? null : Number(maxPrice);
+
+      const matchesMinPrice =
+        numericMinPrice === null || product.price >= numericMinPrice;
+
+      const matchesMaxPrice =
+        numericMaxPrice === null || product.price <= numericMaxPrice;
+
+      return (
+        matchesCategory && matchesSearch && matchesMinPrice && matchesMaxPrice
+      );
     });
 
     return [...matchingProducts].sort((a, b) => {
@@ -74,7 +88,7 @@ function Shop() {
           return 0;
       }
     });
-  }, [products, selectedCategory, searchTerm, sortOption]);
+  }, [products, selectedCategory, searchTerm, sortOption, minPrice, maxPrice]);
 
   return (
     <main className="min-h-screen bg-black px-8 pt-32 pb-24 text-white">
@@ -124,6 +138,48 @@ function Shop() {
           ))}
         </div>
 
+        <div className="mx-auto mt-8 flex max-w-md flex-col gap-4 sm:flex-row">
+          <div className="flex-1">
+            <label
+              htmlFor="min-price"
+              className="mb-2 block text-sm text-gray-400"
+            >
+              Minimum price
+            </label>
+
+            <input
+              id="min-price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={minPrice}
+              onChange={(event) => setMinPrice(event.target.value)}
+              placeholder="$0"
+              className="w-full rounded-full border border-yellow-500/30 bg-[#111111] px-5 py-3 text-white outline-none transition placeholder:text-gray-500 focus:border-yellow-500"
+            />
+          </div>
+
+          <div className="flex-1">
+            <label
+              htmlFor="max-price"
+              className="mb-2 block text-sm text-gray-400"
+            >
+              Maximum price
+            </label>
+
+            <input
+              id="max-price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={maxPrice}
+              onChange={(event) => setMaxPrice(event.target.value)}
+              placeholder="No maximum"
+              className="w-full rounded-full border border-yellow-500/30 bg-[#111111] px-5 py-3 text-white outline-none transition placeholder:text-gray-500 focus:border-yellow-500"
+            />
+          </div>
+        </div>
+
         <div className="mt-8 flex justify-center">
           <div>
             <label htmlFor="product-sort" className="sr-only">
@@ -144,7 +200,7 @@ function Shop() {
             </select>
           </div>
         </div>
-        
+
         {isLoading && (
           <p className="mt-16 text-center text-gray-400">
             Loading the Worlbess collection...
