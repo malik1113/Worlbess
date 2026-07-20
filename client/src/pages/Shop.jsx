@@ -1,52 +1,60 @@
-import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
-const categories = ["All", "Leaf", "Grabba", "Accessories", "Apparel"]
+const categories = ["All", "Leaf", "Grabba", "Accessories", "Apparel"];
 
 function Shop() {
-  const [products, setProducts] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState("All")
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
+  const [products, setProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        setIsLoading(true)
-        setError("")
+        setIsLoading(true);
+        setError("");
 
-        const response = await fetch(`${API_URL}/api/products`)
+        const response = await fetch(`${API_URL}/api/products`);
 
         if (!response.ok) {
-          throw new Error("Unable to load products")
+          throw new Error("Unable to load products");
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
-        setProducts(data.products)
+        setProducts(data.products);
       } catch (error) {
-        console.error("Product request failed:", error)
-        setError("We could not load the Worlbess collection.")
+        console.error("Product request failed:", error);
+        setError("We could not load the Worlbess collection.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategory === "All") {
-      return products
-    }
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    return products.filter(
-      (product) => product.category === selectedCategory
-    )
-  }, [products, selectedCategory])
+    return products.filter((product) => {
+      const matchesCategory =
+        selectedCategory === "All" || product.category === selectedCategory;
+
+      const matchesSearch =
+        normalizedSearch === "" ||
+        product.name.toLowerCase().includes(normalizedSearch) ||
+        product.category.toLowerCase().includes(normalizedSearch) ||
+        product.description.toLowerCase().includes(normalizedSearch);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, selectedCategory, searchTerm]);
 
   return (
     <main className="min-h-screen bg-black px-8 pt-32 pb-24 text-white">
@@ -56,16 +64,29 @@ function Shop() {
             Worlbess Collection
           </p>
 
-          <h1 className="mt-4 font-serif text-5xl md:text-6xl">
-            Shop
-          </h1>
+          <h1 className="mt-4 font-serif text-5xl md:text-6xl">Shop</h1>
 
           <p className="mx-auto mt-6 max-w-2xl leading-7 text-gray-400">
-            Explore premium leaf, grabba, accessories, and apparel selected
-            with quality and craftsmanship in mind.
+            Explore premium leaf, grabba, accessories, and apparel selected with
+            quality and craftsmanship in mind.
           </p>
         </div>
 
+        <div className="mx-auto mt-10 max-w-xl">
+          <label htmlFor="product-search" className="sr-only">
+            Search products
+          </label>
+
+          <input
+            id="product-search"
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search products..."
+            className="w-full rounded-full border border-yellow-500/30 bg-[#111111] px-6 py-4 text-white outline-none transition placeholder:text-gray-500 focus:border-yellow-500"
+          />
+        </div>
+        
         <div className="mt-12 flex flex-wrap justify-center gap-3">
           {categories.map((category) => (
             <button
@@ -173,7 +194,7 @@ function Shop() {
         )}
       </div>
     </main>
-  )
+  );
 }
 
-export default Shop
+export default Shop;
