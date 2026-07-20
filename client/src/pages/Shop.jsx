@@ -9,6 +9,7 @@ function Shop() {
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortOption, setSortOption] = useState("featured");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ function Shop() {
   const filteredProducts = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    return products.filter((product) => {
+    const matchingProducts = products.filter((product) => {
       const matchesCategory =
         selectedCategory === "All" || product.category === selectedCategory;
 
@@ -54,7 +55,26 @@ function Shop() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [products, selectedCategory, searchTerm]);
+
+    return [...matchingProducts].sort((a, b) => {
+      switch (sortOption) {
+        case "price-low":
+          return a.price - b.price;
+
+        case "price-high":
+          return b.price - a.price;
+
+        case "name-az":
+          return a.name.localeCompare(b.name);
+
+        case "name-za":
+          return b.name.localeCompare(a.name);
+
+        default:
+          return 0;
+      }
+    });
+  }, [products, selectedCategory, searchTerm, sortOption]);
 
   return (
     <main className="min-h-screen bg-black px-8 pt-32 pb-24 text-white">
@@ -86,7 +106,7 @@ function Shop() {
             className="w-full rounded-full border border-yellow-500/30 bg-[#111111] px-6 py-4 text-white outline-none transition placeholder:text-gray-500 focus:border-yellow-500"
           />
         </div>
-        
+
         <div className="mt-12 flex flex-wrap justify-center gap-3">
           {categories.map((category) => (
             <button
@@ -104,6 +124,27 @@ function Shop() {
           ))}
         </div>
 
+        <div className="mt-8 flex justify-center">
+          <div>
+            <label htmlFor="product-sort" className="sr-only">
+              Sort products
+            </label>
+
+            <select
+              id="product-sort"
+              value={sortOption}
+              onChange={(event) => setSortOption(event.target.value)}
+              className="rounded-full border border-yellow-500/30 bg-[#111111] px-6 py-3 text-white outline-none transition focus:border-yellow-500"
+            >
+              <option value="featured">Featured</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="name-az">Name: A to Z</option>
+              <option value="name-za">Name: Z to A</option>
+            </select>
+          </div>
+        </div>
+        
         {isLoading && (
           <p className="mt-16 text-center text-gray-400">
             Loading the Worlbess collection...
