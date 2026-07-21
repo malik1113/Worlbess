@@ -30,6 +30,7 @@ function buildOrderItemsHtml(items) {
 }
 
 export async function sendOrderConfirmationEmail(order) {
+    const resend = getResendClient()
     if (!resend) {
         console.warn(
           "Order confirmation email skipped: Resend client is unavailable."
