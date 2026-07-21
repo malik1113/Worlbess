@@ -6,9 +6,37 @@ function SEO({
   canonical,
   image = "/images/Earth-in-space.png",
 }) {
+  const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        name: "Worlbess",
+        url: siteUrl,
+        logo: `${siteUrl}/images/Earth-in-space.png`,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        url: siteUrl,
+        name: "Worlbess",
+        publisher: {
+          "@id": `${siteUrl}/#organization`,
+        },
+      },
+    ],
+  };
   return (
     <Helmet>
       <title>{title}</title>
+
+      <script type="application/ld+json">
+        {JSON.stringify(structuredData)}
+      </script>
+      
       {canonical && <link rel="canonical" href={canonical} />}
 
       {description && (
