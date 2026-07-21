@@ -380,10 +380,12 @@ function Shop() {
                 <div className="flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-[#1c1c1c] to-black">
                   {product.image ? (
                     <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
+                    src={product.image}
+                    alt={product.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
                   ) : (
                     <span className="px-6 text-center text-gray-500">
                       Product image coming soon
@@ -475,10 +477,12 @@ function Shop() {
                   <div className="aspect-square overflow-hidden bg-black">
                     {product.image ? (
                       <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-full w-full object-cover"
-                      />
+                      src={product.image}
+                      alt={product.name}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
                     ) : (
                       <div className="flex h-full items-center justify-center px-6 text-center text-gray-500">
                         Product image coming soon
