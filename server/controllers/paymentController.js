@@ -23,6 +23,15 @@ const fulfillCheckoutSession = async (sessionId) => {
   if (!order) {
     throw new Error(`Order ${orderId} was not found.`);
   }
+  order.paymentStatus = "Paid";
+  order.paidAt = new Date();
+  order.paymentFailureMessage = null;
+
+  if (session.payment_intent) {
+    order.stripePaymentIntentId = session.payment_intent;
+  }
+
+  await order.save();
 
   // Stripe can retry webhook deliveries. This makes fulfillment idempotent.
   // Send the order confirmation only once.
