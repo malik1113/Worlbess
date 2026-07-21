@@ -76,10 +76,12 @@ function Cart() {
                 <div className="aspect-square overflow-hidden rounded-xl bg-[#1a1a1a]">
                   {item.image ? (
                     <img
-                      src={item.image}
-                      alt={item.name}
-                      className="h-full w-full object-cover"
-                    />
+                    src={item.image}
+                    alt={item.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
                   ) : (
                     <div className="flex h-full items-center justify-center px-4 text-center text-sm text-gray-500">
                       Product image coming soon
