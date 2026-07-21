@@ -1,6 +1,11 @@
 import { Helmet } from "react-helmet-async";
 
-function SEO({ title, description, canonical }) {
+function SEO({
+  title,
+  description,
+  canonical,
+  image = "/images/Earth-in-space.png",
+}) {
   return (
     <Helmet>
       <title>{title}</title>
@@ -18,6 +23,11 @@ function SEO({ title, description, canonical }) {
           <meta name="twitter:title" content={title} />
 
           <meta name="twitter:description" content={description} />
+          <meta property="og:image" content={image} />
+
+          <meta property="og:site_name" content="Worlbess" />
+
+          <meta name="twitter:image" content={image} />
         </>
       )}
     </Helmet>
