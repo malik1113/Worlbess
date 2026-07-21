@@ -3,67 +3,68 @@
 // Saves viewed products to localStorage
 // Keeps newest product first and limits history to six
 // ======================================================
-import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router-dom"
-import { useCart } from "../context/CartContext"
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import SEO from "../components/SEO";
 
 function ProductDetail() {
-  const { id } = useParams()
-  const { addToCart } = useCart()
+  const { id } = useParams();
+  const { addToCart } = useCart();
 
-  const API_URL = import.meta.env.VITE_API_URL
+  const API_URL = import.meta.env.VITE_API_URL;
 
-  const [product, setProduct] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState("")
+  const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        setIsLoading(true)
-        setError("")
+        setIsLoading(true);
+        setError("");
 
-        const response = await fetch(`${API_URL}/api/products/${id}`)
+        const response = await fetch(`${API_URL}/api/products/${id}`);
 
         if (!response.ok) {
-          throw new Error("Product not found")
+          throw new Error("Product not found");
         }
 
-        const data = await response.json()
-        setProduct(data.product)
+        const data = await response.json();
+        setProduct(data.product);
       } catch (error) {
-        console.error("Product request failed:", error)
-        setError("We could not load this product.")
+        console.error("Product request failed:", error);
+        setError("We could not load this product.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchProduct()
-  }, [id])
+    fetchProduct();
+  }, [id]);
 
   useEffect(() => {
     if (!product) {
-      return
+      return;
     }
-  
+
     const storedProducts = JSON.parse(
       localStorage.getItem("recentlyViewedProducts") || "[]"
-    )
-  
+    );
+
     const updatedProducts = [
       product,
       ...storedProducts.filter(
         (storedProduct) => storedProduct._id !== product._id
       ),
-    ].slice(0, 6)
-  
+    ].slice(0, 6);
+
     localStorage.setItem(
       "recentlyViewedProducts",
       JSON.stringify(updatedProducts)
-    )
-  }, [product])
-  
+    );
+  }, [product]);
+
   if (isLoading) {
     return (
       <main className="min-h-screen bg-black px-8 pt-32 text-white">
@@ -71,7 +72,7 @@ function ProductDetail() {
           <p className="text-gray-400">Loading product...</p>
         </div>
       </main>
-    )
+    );
   }
 
   if (error || !product) {
@@ -94,13 +95,17 @@ function ProductDetail() {
           </Link>
         </div>
       </main>
-    )
+    );
   }
 
-  const isInStock = product.stock > 0
+  const isInStock = product.stock > 0;
 
   return (
     <main className="min-h-screen bg-black px-8 pt-32 pb-24 text-white">
+      <SEO
+        title={`${product.name} | Worlbess`}
+        description={product.description}
+      />
       <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-2">
         <div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-yellow-500/20 bg-[#111111]">
           {product.image ? (
@@ -110,9 +115,7 @@ function ProductDetail() {
               className="h-full w-full object-cover"
             />
           ) : (
-            <p className="text-gray-500">
-              Product image coming soon
-            </p>
+            <p className="text-gray-500">Product image coming soon</p>
           )}
         </div>
 
@@ -121,22 +124,18 @@ function ProductDetail() {
             {product.category}
           </p>
 
-          <h1 className="mt-4 font-serif text-5xl">
-            {product.name}
-          </h1>
+          <h1 className="mt-4 font-serif text-5xl">{product.name}</h1>
 
           <p className="mt-6 text-2xl text-yellow-500">
             ${product.price.toFixed(2)}
           </p>
 
-          <p className="mt-6 leading-8 text-gray-300">
-            {product.description}
-          </p>
+          <p className="mt-6 leading-8 text-gray-300">{product.description}</p>
 
-          <p className={`mt-6 ${isInStock ? "text-green-400" : "text-red-400"}`}>
-            {isInStock
-              ? `In Stock: ${product.stock}`
-              : "Out of Stock"}
+          <p
+            className={`mt-6 ${isInStock ? "text-green-400" : "text-red-400"}`}
+          >
+            {isInStock ? `In Stock: ${product.stock}` : "Out of Stock"}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
@@ -159,7 +158,7 @@ function ProductDetail() {
         </div>
       </div>
     </main>
-  )
+  );
 }
 
-export default ProductDetail
+export default ProductDetail;
