@@ -1,22 +1,25 @@
-import { motion } from "framer-motion"
-import { Link, useLocation } from "react-router-dom"
+import { motion } from "framer-motion";
+import { Link, useLocation } from "react-router-dom";
+import SEO from "../components/SEO";
 
 function OrderConfirmation() {
-  const location = useLocation()
+  const location = useLocation();
 
-  const order = location.state?.order
+  const order = location.state?.order;
 
   if (!order) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-black px-8 pb-24 pt-32 text-white">
+        <SEO
+          title="Order Confirmation | Worlbess"
+          description="View your Worlbess order confirmation and purchase details."
+        />
         <div className="max-w-2xl text-center">
           <p className="text-sm uppercase tracking-[0.35em] text-yellow-500">
             Worlbess
           </p>
 
-          <h1 className="mt-5 text-5xl font-serif">
-            No Order Found
-          </h1>
+          <h1 className="mt-5 text-5xl font-serif">No Order Found</h1>
 
           <p className="mt-6 leading-8 text-gray-400">
             This confirmation page must be opened after completing checkout.
@@ -30,13 +33,16 @@ function OrderConfirmation() {
           </Link>
         </div>
       </main>
-    )
+    );
   }
 
   return (
     <main className="min-h-screen bg-black px-8 pb-24 pt-32 text-white">
+      <SEO
+        title="Order Confirmed | Worlbess"
+        description="Your Worlbess order has been received successfully."
+      />
       <div className="mx-auto max-w-5xl">
-
         <motion.section
           className="rounded-3xl border border-yellow-500/30 bg-gradient-to-br from-[#171717] to-black px-8 py-16 text-center md:px-16"
           initial={{ opacity: 0, y: 35 }}
@@ -66,8 +72,7 @@ function OrderConfirmation() {
           </h1>
 
           <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-gray-300">
-            Your Worlbess order has been received. A confirmation will
-            eventually be sent to{" "}
+            Your Worlbess order has been received. A confirmation email will be sent to
             <span className="text-white">{order.email}</span>.
           </p>
 
@@ -97,9 +102,7 @@ function OrderConfirmation() {
                 Items
               </p>
 
-              <p className="mt-3 text-xl text-white">
-                {order.itemCount}
-              </p>
+              <p className="mt-3 text-xl text-white">{order.itemCount}</p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-black p-6">
@@ -107,16 +110,12 @@ function OrderConfirmation() {
                 Status
               </p>
 
-              <p className="mt-3 text-xl text-green-400">
-                Received
-              </p>
+              <p className="mt-3 text-xl text-green-400">Received</p>
             </div>
           </div>
 
           <div className="mx-auto mt-12 max-w-3xl rounded-2xl border border-yellow-500/20 bg-[#0d0d0d] p-8 text-left">
-            <h2 className="text-3xl font-serif">
-              What Happens Next?
-            </h2>
+            <h2 className="text-3xl font-serif">What Happens Next?</h2>
 
             <div className="mt-7 space-y-6">
               <div className="flex gap-5">
@@ -125,9 +124,7 @@ function OrderConfirmation() {
                 </span>
 
                 <div>
-                  <h3 className="text-lg text-white">
-                    Order Review
-                  </h3>
+                  <h3 className="text-lg text-white">Order Review</h3>
 
                   <p className="mt-1 text-gray-400">
                     Your order and age-verification information will be
@@ -142,9 +139,7 @@ function OrderConfirmation() {
                 </span>
 
                 <div>
-                  <h3 className="text-lg text-white">
-                    Processing
-                  </h3>
+                  <h3 className="text-lg text-white">Processing</h3>
 
                   <p className="mt-1 text-gray-400">
                     Approved orders will be prepared for shipment.
@@ -158,9 +153,7 @@ function OrderConfirmation() {
                 </span>
 
                 <div>
-                  <h3 className="text-lg text-white">
-                    Shipping Update
-                  </h3>
+                  <h3 className="text-lg text-white">Shipping Update</h3>
 
                   <p className="mt-1 text-gray-400">
                     Tracking information will be provided when shipping is
@@ -187,10 +180,9 @@ function OrderConfirmation() {
             </Link>
           </div>
         </motion.section>
-
       </div>
     </main>
-  )
+  );
 }
 
-export default OrderConfirmation
+export default OrderConfirmation;
