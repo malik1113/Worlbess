@@ -1,17 +1,21 @@
-import { motion } from "framer-motion"
-import { Link } from "react-router-dom"
-import aboutImage from "../assets/story/story-image.png"
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import aboutImage from "../assets/story/story-image.png";
+import SEO from "../components/SEO";
 
 function About() {
   return (
     <main className="min-h-screen bg-black text-white">
+      <SEO
+        title="Our Story | Worlbess"
+        description="Discover the Worlbess story, inspired by traditional craftsmanship, natural materials, patience, and respect for premium tobacco leaf."
+      />
 
       {/* HERO */}
       <section className="relative flex min-h-[70vh] items-center overflow-hidden px-8 pt-32">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-[#111111] to-[#1a1305]" />
 
         <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-2">
-
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
@@ -56,14 +60,12 @@ function About() {
               </h2>
             </div>
           </motion.div>
-
         </div>
       </section>
 
       {/* HISTORY */}
       <section className="bg-[#0d0d0d] px-8 py-24">
         <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-2">
-
           <motion.div
             initial={{ opacity: 0, y: 35 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -89,8 +91,8 @@ function About() {
             <p>
               Long before modern factories and mass production, master leaf
               craftsmen across North Africa and the Arabian Peninsula refined
-              the art of selecting, curing, and preparing exceptional tobacco
-              by hand, in the pursuit of the perfect blend.
+              the art of selecting, curing, and preparing exceptional tobacco by
+              hand, in the pursuit of the perfect blend.
             </p>
 
             <p>
@@ -101,18 +103,16 @@ function About() {
 
             <p>
               Inspired by this heritage, Worlbess embraces the belief that
-              exceptional quality begins with the skilled hands of a Master, natural materials,
-              and respect for the process.
+              exceptional quality begins with the skilled hands of a Master,
+              natural materials, and respect for the process.
             </p>
           </motion.div>
-
         </div>
       </section>
 
       {/* VALUES */}
       <section className="bg-black px-8 py-24">
         <div className="mx-auto max-w-7xl">
-
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">
               Our Principles
@@ -129,7 +129,6 @@ function About() {
           </div>
 
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-
             {[
               {
                 title: "Organic Focused",
@@ -166,12 +165,9 @@ function About() {
                   {value.title}
                 </h3>
 
-                <p className="mt-4 leading-7 text-gray-400">
-                  {value.text}
-                </p>
+                <p className="mt-4 leading-7 text-gray-400">{value.text}</p>
               </motion.article>
             ))}
-
           </div>
         </div>
       </section>
@@ -196,8 +192,8 @@ function About() {
           </h2>
 
           <p className="mx-auto mt-7 max-w-2xl leading-8 text-gray-300">
-            Worlbess exists to deliver premium products with authenticity,
-            care, and a standard worthy of the name: the world's best.
+            Worlbess exists to deliver premium products with authenticity, care,
+            and a standard worthy of the name: the world's best.
           </p>
 
           <Link
@@ -208,9 +204,8 @@ function About() {
           </Link>
         </motion.div>
       </section>
-
     </main>
-  )
+  );
 }
 
-export default About
+export default About;
