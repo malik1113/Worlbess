@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom"
-import { useCart } from "../context/CartContext"
+import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import SEO from "../components/SEO";
 
 function Cart() {
   const {
@@ -9,19 +10,21 @@ function Cart() {
     decreaseQuantity,
     removeFromCart,
     clearCart,
-  } = useCart()
+  } = useCart();
 
   if (cartItems.length === 0) {
     return (
       <main className="min-h-screen bg-black px-8 pb-24 pt-32 text-white">
+        <SEO
+          title="Shopping Cart | Worlbess"
+          description="Review the products in your Worlbess shopping cart before proceeding to secure checkout."
+        />
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">
             Your Cart
           </p>
 
-          <h1 className="mt-4 font-serif text-5xl">
-            Your Cart Is Empty
-          </h1>
+          <h1 className="mt-4 font-serif text-5xl">Your Cart Is Empty</h1>
 
           <p className="mt-6 text-gray-400">
             Explore the Worlbess collection and add something exceptional.
@@ -35,11 +38,15 @@ function Cart() {
           </Link>
         </div>
       </main>
-    )
+    );
   }
 
   return (
     <main className="min-h-screen bg-black px-8 pb-24 pt-32 text-white">
+      <SEO
+        title="Shopping Cart | Worlbess"
+        description="Review the products in your Worlbess shopping cart before proceeding to secure checkout."
+      />
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
@@ -47,9 +54,7 @@ function Cart() {
               Your Selection
             </p>
 
-            <h1 className="mt-4 font-serif text-5xl">
-              Shopping Cart
-            </h1>
+            <h1 className="mt-4 font-serif text-5xl">Shopping Cart</h1>
           </div>
 
           <button
@@ -89,9 +94,7 @@ function Cart() {
                         {item.category}
                       </p>
 
-                      <h2 className="mt-2 font-serif text-2xl">
-                        {item.name}
-                      </h2>
+                      <h2 className="mt-2 font-serif text-2xl">{item.name}</h2>
                     </div>
 
                     <p className="text-xl text-yellow-500">
@@ -145,9 +148,7 @@ function Cart() {
           </section>
 
           <aside className="h-fit rounded-2xl border border-yellow-500/30 bg-[#111111] p-8">
-            <h2 className="font-serif text-3xl">
-              Order Summary
-            </h2>
+            <h2 className="font-serif text-3xl">Order Summary</h2>
 
             <div className="mt-8 space-y-4 border-b border-white/10 pb-6">
               <div className="flex justify-between text-gray-300">
@@ -168,9 +169,7 @@ function Cart() {
 
             <div className="mt-6 flex justify-between text-xl">
               <span>Estimated Total</span>
-              <span className="text-yellow-500">
-                ${subtotal.toFixed(2)}
-              </span>
+              <span className="text-yellow-500">${subtotal.toFixed(2)}</span>
             </div>
 
             <Link
@@ -190,7 +189,7 @@ function Cart() {
         </div>
       </div>
     </main>
-  )
+  );
 }
 
-export default Cart
+export default Cart;
