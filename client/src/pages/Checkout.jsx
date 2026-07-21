@@ -1,21 +1,19 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { useCart } from "../context/CartContext"
-import { useAuth } from "../context/AuthContext"
-import { loadStripe } from "@stripe/stripe-js"
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import { loadStripe } from "@stripe/stripe-js";
+import SEO from "../components/SEO";
 
 function Checkout() {
-  const API_URL = import.meta.env.VITE_API_URL
-  const stripePromise = loadStripe(
-    import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-  )
-  const { cartItems, cartCount, subtotal, } = useCart()
-  const { token } = useAuth()
+  const API_URL = import.meta.env.VITE_API_URL;
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+  const { cartItems, cartCount, subtotal } = useCart();
+  const { token } = useAuth();
 
-  console.log("JWT Token:", token)
- 
+  console.log("JWT Token:", token);
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -28,49 +26,47 @@ function Checkout() {
     zipCode: "",
     phone: "",
     ageConfirmed: false,
-  })
+  });
 
   function handleChange(event) {
-    const { name, value, type, checked } = event.target
+    const { name, value, type, checked } = event.target;
 
     setFormData((currentData) => ({
       ...currentData,
       [name]: type === "checkbox" ? checked : value,
-    }))
+    }));
   }
 
   async function handleSubmit(event) {
-    event.preventDefault()
-  
+    event.preventDefault();
+
     if (isSubmitting) {
-      return
+      return;
     }
-  
+
     if (!token) {
-      window.alert("Please log in before completing checkout.")
-      return
+      window.alert("Please log in before completing checkout.");
+      return;
     }
-  
+
     if (cartItems.length === 0) {
-      window.alert("Your cart is empty.")
-      return
+      window.alert("Your cart is empty.");
+      return;
     }
-  
+
     if (!formData.ageConfirmed) {
-      window.alert(
-        "You must confirm that you meet the legal age requirement."
-      )
-      return
+      window.alert("You must confirm that you meet the legal age requirement.");
+      return;
     }
-  
+
     const shippingAddress = [
       formData.address,
       formData.apartment,
       `${formData.city}, ${formData.state} ${formData.zipCode}`,
     ]
       .filter(Boolean)
-      .join(", ")
-  
+      .join(", ");
+
     const orderData = {
       customerName: `${formData.firstName} ${formData.lastName}`.trim(),
       email: formData.email,
@@ -80,11 +76,11 @@ function Checkout() {
         product: item._id,
         quantity: item.quantity,
       })),
-    }
-  
+    };
+
     try {
-      setIsSubmitting(true)
-  
+      setIsSubmitting(true);
+
       // Step 1: Create the Worlbess order in MongoDB.
       const orderResponse = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
@@ -93,22 +89,22 @@ function Checkout() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(orderData),
-      })
-  
-      const orderDataResponse = await orderResponse.json()
-  
+      });
+
+      const orderDataResponse = await orderResponse.json();
+
       if (!orderResponse.ok) {
         throw new Error(
           orderDataResponse.message || "Unable to create the order."
-        )
+        );
       }
-  
-      const orderId = orderDataResponse.order?._id
-  
+
+      const orderId = orderDataResponse.order?._id;
+
       if (!orderId) {
-        throw new Error("The server did not return an order ID.")
+        throw new Error("The server did not return an order ID.");
       }
-  
+
       // Step 2: Create a Stripe Checkout Session for that order.
       const paymentResponse = await fetch(
         `${API_URL}/api/payments/create-checkout-session`,
@@ -122,32 +118,35 @@ function Checkout() {
             orderId,
           }),
         }
-      )
-  
-      const paymentData = await paymentResponse.json()
-  
+      );
+
+      const paymentData = await paymentResponse.json();
+
       if (!paymentResponse.ok) {
         throw new Error(
           paymentData.message || "Unable to start secure payment."
-        )
+        );
       }
-  
+
       if (!paymentData.url) {
-        throw new Error("Stripe did not return a Checkout URL.")
+        throw new Error("Stripe did not return a Checkout URL.");
       }
-  
+
       // Step 3: Send the customer to Stripe's hosted payment page.
-      window.location.href = paymentData.url
+      window.location.href = paymentData.url;
     } catch (error) {
-      console.error("Checkout failed:", error)
-      window.alert(error.message)
-      setIsSubmitting(false)
+      console.error("Checkout failed:", error);
+      window.alert(error.message);
+      setIsSubmitting(false);
     }
   }
   return (
     <main className="min-h-screen bg-black px-8 pb-24 pt-32 text-white">
+      <SEO
+        title="Checkout | Worlbess"
+        description="Complete your secure Worlbess checkout to purchase premium Grabba, tobacco leaf, accessories, and apparel."
+      />
       <div className="mx-auto max-w-7xl">
-
         <div className="text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">
             Secure Checkout
@@ -159,21 +158,15 @@ function Checkout() {
         </div>
 
         <div className="mt-14 grid gap-12 lg:grid-cols-[1fr_380px]">
-
           <form
             onSubmit={handleSubmit}
             className="rounded-2xl border border-yellow-500/20 bg-[#111111] p-8"
           >
             <section>
-              <h2 className="text-3xl font-serif">
-                Contact Information
-              </h2>
+              <h2 className="text-3xl font-serif">Contact Information</h2>
 
               <div className="mt-6">
-                <label
-                  htmlFor="email"
-                  className="block text-sm text-gray-300"
-                >
+                <label htmlFor="email" className="block text-sm text-gray-300">
                   Email address
                 </label>
 
@@ -190,9 +183,7 @@ function Checkout() {
             </section>
 
             <section className="mt-10">
-              <h2 className="text-3xl font-serif">
-                Shipping Address
-              </h2>
+              <h2 className="text-3xl font-serif">Shipping Address</h2>
 
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
                 <div>
@@ -273,10 +264,7 @@ function Checkout() {
 
               <div className="mt-5 grid gap-5 sm:grid-cols-3">
                 <div>
-                  <label
-                    htmlFor="city"
-                    className="block text-sm text-gray-300"
-                  >
+                  <label htmlFor="city" className="block text-sm text-gray-300">
                     City
                   </label>
 
@@ -331,10 +319,7 @@ function Checkout() {
               </div>
 
               <div className="mt-5">
-                <label
-                  htmlFor="phone"
-                  className="block text-sm text-gray-300"
-                >
+                <label htmlFor="phone" className="block text-sm text-gray-300">
                   Phone number
                 </label>
 
@@ -370,14 +355,14 @@ function Checkout() {
               disabled={isSubmitting}
               className="mt-8 w-full rounded-full bg-yellow-500 px-8 py-4 font-semibold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? "Opening Secure Payment..." : "Continue to Payment"}
+              {isSubmitting
+                ? "Opening Secure Payment..."
+                : "Continue to Payment"}
             </button>
           </form>
 
           <aside className="h-fit rounded-2xl border border-yellow-500/30 bg-[#111111] p-8">
-            <h2 className="text-3xl font-serif">
-              Order Summary
-            </h2>
+            <h2 className="text-3xl font-serif">Order Summary</h2>
 
             <div className="mt-8 space-y-5">
               {cartItems.map((item) => (
@@ -386,9 +371,7 @@ function Checkout() {
                   className="flex justify-between gap-4 border-b border-white/10 pb-5"
                 >
                   <div>
-                    <p className="text-white">
-                      {item.name}
-                    </p>
+                    <p className="text-white">{item.name}</p>
 
                     <p className="mt-1 text-sm text-gray-400">
                       Quantity: {item.quantity}
@@ -422,9 +405,7 @@ function Checkout() {
             <div className="mt-6 flex justify-between border-t border-white/10 pt-6 text-xl">
               <span>Estimated Total</span>
 
-              <span className="text-yellow-500">
-                ${subtotal.toFixed(2)}
-              </span>
+              <span className="text-yellow-500">${subtotal.toFixed(2)}</span>
             </div>
 
             <Link
@@ -434,11 +415,10 @@ function Checkout() {
               Return to Cart
             </Link>
           </aside>
-
         </div>
       </div>
     </main>
-  )
+  );
 }
 
-export default Checkout
+export default Checkout;
