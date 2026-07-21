@@ -1,9 +1,10 @@
 import { Helmet } from "react-helmet-async";
 
-function SEO({ title, description }) {
+function SEO({ title, description, canonical }) {
   return (
     <Helmet>
       <title>{title}</title>
+      {canonical && <link rel="canonical" href={canonical} />}
 
       {description && (
         <>
