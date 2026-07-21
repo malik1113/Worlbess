@@ -1,22 +1,18 @@
-import { Helmet } from "react-helmet-async"
+import SEO from "../components/SEO";
 
-import Hero from "../components/Hero"
-import FeaturedCollections from "../components/FeaturedCollections"
-import VideoSection from "../components/VideoSection"
-import BrandStory from "../components/BrandStory"
-import FeaturedProducts from "../components/FeaturedProducts"
+import Hero from "../components/Hero";
+import FeaturedCollections from "../components/FeaturedCollections";
+import VideoSection from "../components/VideoSection";
+import BrandStory from "../components/BrandStory";
+import FeaturedProducts from "../components/FeaturedProducts";
 
 function Home() {
   return (
     <>
-      <Helmet>
-        <title>Worlbess | Premium Grabba & Tobacco Leaf</title>
-
-        <meta
-          name="description"
-          content="Discover premium Grabba, natural tobacco leaf, and smoking accessories from Worlbess. Crafted for quality, freshness, and an exceptional smoking experience."
-        />
-      </Helmet>
+      <SEO
+        title="Worlbess | Premium Grabba & Tobacco Leaf"
+        description="Discover premium Grabba, natural tobacco leaf, and smoking accessories from Worlbess. Crafted for quality, freshness, and an exceptional smoking experience."
+      />
 
       <Hero />
       <FeaturedCollections />
@@ -24,7 +20,7 @@ function Home() {
       <BrandStory />
       <FeaturedProducts />
     </>
-  )
+  );
 }
 
-export default Home
+export default Home;
