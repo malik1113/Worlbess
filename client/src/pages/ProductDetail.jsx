@@ -110,10 +110,12 @@ function ProductDetail() {
         <div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-yellow-500/20 bg-[#111111]">
           {product.image ? (
             <img
-              src={product.image}
-              alt={product.name}
-              className="h-full w-full object-cover"
-            />
+            src={product.image}
+            alt={product.name}
+            fetchPriority="high"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
           ) : (
             <p className="text-gray-500">Product image coming soon</p>
           )}
