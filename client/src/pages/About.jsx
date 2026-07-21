@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import aboutImage from "../assets/story/story-image.png";
+import aboutImage from "../assets/story/story-image.webp";
 import SEO from "../components/SEO";
 
 function About() {
