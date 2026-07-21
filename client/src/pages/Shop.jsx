@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -68,10 +69,10 @@ function Shop() {
     setSortOption("featured");
   };
 
-// ======================================================
-// FILTERING + SORTING
-// Applies every customer filter before rendering products
-// ======================================================
+  // ======================================================
+  // FILTERING + SORTING
+  // Applies every customer filter before rendering products
+  // ======================================================
   const filteredProducts = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
@@ -143,6 +144,10 @@ function Shop() {
 
   return (
     <main className="min-h-screen bg-black px-8 pt-32 pb-24 text-white">
+      <SEO
+        title="Shop | Worlbess"
+        description="Browse premium Grabba, natural tobacco leaf, smoking accessories, and apparel from Worlbess."
+      />
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">
