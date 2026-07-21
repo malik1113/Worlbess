@@ -82,10 +82,12 @@ function FeaturedProducts() {
                 <div className="flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-[#1d1d1d] to-black">
                   {product.image ? (
                     <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
+                    src={product.image}
+                    alt={product.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
                   ) : (
                     <span className="text-gray-500">
                       Product image coming soon
