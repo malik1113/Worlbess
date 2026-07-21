@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async"
+
 import Hero from "../components/Hero"
 import FeaturedCollections from "../components/FeaturedCollections"
 import VideoSection from "../components/VideoSection"
