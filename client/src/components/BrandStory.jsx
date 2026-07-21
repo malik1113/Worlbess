@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import homeImage from "../assets/products/home-image.png"
+import homeImage from "../assets/products/home-image.webp"
 
 function BrandStory() {
   return (
