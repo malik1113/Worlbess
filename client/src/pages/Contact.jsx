@@ -1,5 +1,6 @@
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import SEO from "../components/SEO";
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -7,31 +8,34 @@ function Contact() {
     email: "",
     subject: "Customer Support",
     message: "",
-  })
+  });
 
   function handleChange(event) {
-    const { name, value } = event.target
+    const { name, value } = event.target;
 
     setFormData((currentData) => ({
       ...currentData,
       [name]: value,
-    }))
+    }));
   }
 
   function handleSubmit(event) {
-    event.preventDefault()
+    event.preventDefault();
 
-    console.log("Contact form submitted:", formData)
+    console.log("Contact form submitted:", formData);
 
     window.alert(
       "Your message form is working. Email delivery will be connected later."
-    )
+    );
   }
 
   return (
     <main className="min-h-screen bg-black px-8 pb-24 pt-32 text-white">
+      <SEO
+        title="Contact Us | Worlbess"
+        description="Contact the Worlbess team for customer support, wholesale inquiries, retail partnerships, media requests, or general questions."
+      />
       <div className="mx-auto max-w-7xl">
-
         <motion.div
           className="mx-auto max-w-3xl text-center"
           initial={{ opacity: 0, y: 35 }}
@@ -53,7 +57,6 @@ function Contact() {
         </motion.div>
 
         <div className="mt-16 grid gap-12 lg:grid-cols-[1fr_1.2fr]">
-
           <motion.section
             className="space-y-6"
             initial={{ opacity: 0, x: -35 }}
@@ -86,9 +89,7 @@ function Contact() {
                   {item.title}
                 </h2>
 
-                <p className="mt-3 leading-7 text-gray-400">
-                  {item.text}
-                </p>
+                <p className="mt-3 leading-7 text-gray-400">{item.text}</p>
               </article>
             ))}
 
@@ -123,16 +124,11 @@ function Contact() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl font-serif">
-              Send a Message
-            </h2>
+            <h2 className="text-3xl font-serif">Send a Message</h2>
 
             <div className="mt-8 grid gap-6 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm text-gray-300"
-                >
+                <label htmlFor="name" className="block text-sm text-gray-300">
                   Name
                 </label>
 
@@ -148,10 +144,7 @@ function Contact() {
               </div>
 
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm text-gray-300"
-                >
+                <label htmlFor="email" className="block text-sm text-gray-300">
                   Email
                 </label>
 
@@ -168,10 +161,7 @@ function Contact() {
             </div>
 
             <div className="mt-6">
-              <label
-                htmlFor="subject"
-                className="block text-sm text-gray-300"
-              >
+              <label htmlFor="subject" className="block text-sm text-gray-300">
                 Subject
               </label>
 
@@ -191,10 +181,7 @@ function Contact() {
             </div>
 
             <div className="mt-6">
-              <label
-                htmlFor="message"
-                className="block text-sm text-gray-300"
-              >
+              <label htmlFor="message" className="block text-sm text-gray-300">
                 Message
               </label>
 
@@ -220,7 +207,6 @@ function Contact() {
               Email delivery will be connected when we build the backend.
             </p>
           </motion.form>
-
         </div>
 
         <section className="mt-20 rounded-3xl border border-yellow-500/20 bg-gradient-to-br from-[#171717] to-black px-8 py-14 text-center">
@@ -244,10 +230,9 @@ function Contact() {
             View FAQs
           </button>
         </section>
-
       </div>
     </main>
-  )
+  );
 }
 
-export default Contact
+export default Contact;
