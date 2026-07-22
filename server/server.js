@@ -23,8 +23,13 @@ console.log("Stripe configuration loaded:", Boolean(stripe))
 const app = express()
 const PORT = process.env.PORT || 3001
 
-app.use(cors())
-// Stripe must receive the untouched raw request body. The webhook route must appear before the general JSON middleware. Stripe signature verification fails when another middleware alters the request body.
+// Stripe must receive the untouched raw request body.
+app.use(
+    cors({
+      origin: process.env.CLIENT_URL,
+    })
+  )
+
 app.post(
     "/api/payments/webhook",
     express.raw({ type: "application/json" }),
