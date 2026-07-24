@@ -54,8 +54,8 @@ app.get("/", (req, res) => {
 const startServer = async () => {
   await connectDB()
 
-  app.listen(PORT, () => {
-    console.log(`Worlbess server running on http://localhost:${PORT}`)
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Worlbess server running on port ${PORT}`)
   })
 }
 
