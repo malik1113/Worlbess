@@ -82,7 +82,7 @@ function FeaturedProducts() {
                 <div className="flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-[#1d1d1d] to-black">
                   {product.image ? (
                     <img
-                    src={product.image}
+                    src={`${API_URL}${product.image}`}
                     alt={product.name}
                     loading="lazy"
                     decoding="async"
