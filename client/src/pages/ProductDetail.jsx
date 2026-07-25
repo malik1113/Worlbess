@@ -8,6 +8,8 @@ import { Link, useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import SEO from "../components/SEO";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function ProductDetail() {
   const { id } = useParams();
   const { addToCart } = useCart();
@@ -110,7 +112,7 @@ function ProductDetail() {
         <div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-yellow-500/20 bg-[#111111]">
           {product.image ? (
             <img
-            src={product.image}
+            src={`${API_URL}${product.image}`}
             alt={product.name}
             fetchPriority="high"
             decoding="async"
