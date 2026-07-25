@@ -446,11 +446,28 @@ function AdminDashboard() {
 
                     <div className="md:text-right">
                       <p className="text-sm uppercase tracking-[0.15em] text-gray-400">
-                        Status
+                        Order Status
                       </p>
 
                       <p className="mt-2 text-lg font-semibold text-yellow-500">
                         {order.status}
+                      </p>
+
+                      <p className="mt-4 text-sm uppercase tracking-[0.15em] text-gray-400">
+                        Payment Status
+                      </p>
+                      <p
+                        className={`mt-2 text-lg font-semibold ${
+                          order.paymentStatus === "Paid"
+                            ? "text-green-400"
+                            : order.paymentStatus === "Failed"
+                            ? "text-red-400"
+                            : order.paymentStatus === "Refunded"
+                            ? "text-blue-400"
+                            : "text-gray-300"
+                        }`}
+                      >
+                        {order.paymentStatus || "Unpaid"}
                       </p>
 
                       <p className="mt-4 text-sm text-gray-400">
