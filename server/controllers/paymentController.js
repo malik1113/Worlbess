@@ -1,6 +1,61 @@
+import mongoose from "mongoose";
+import Product from "../models/Product.js";
 import Order from "../models/Order.js";
 import stripe from "../config/stripe.js";
 import { sendOrderConfirmationEmail } from "../services/emailService.js";
+
+const restoreOrderInventory = async (orderId, failureMessage) => {
+  const databaseSession = await mongoose.startSession();
+
+  try {
+    let restoredOrder = null;
+
+    await databaseSession.withTransaction(async () => {
+      const order = await Order.findById(orderId).session(databaseSession);
+
+      if (!order) {
+        throw new Error(`Order ${orderId} was not found.`);
+      }
+
+      if (order.paymentStatus === "Paid") {
+        return;
+      }
+
+      if (order.inventoryRestored) {
+        restoredOrder = order;
+        return;
+      }
+
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(
+          item.product,
+          {
+            $inc: {
+              stock: item.quantity,
+            },
+          },
+          {
+            session: databaseSession,
+          }
+        );
+      }
+
+      order.inventoryRestored = true;
+      order.paymentStatus = "Failed";
+      order.paymentFailureMessage = failureMessage;
+
+      await order.save({
+        session: databaseSession,
+      });
+
+      restoredOrder = order;
+    });
+
+    return restoredOrder;
+  } finally {
+    await databaseSession.endSession();
+  }
+};
 
 const fulfillCheckoutSession = async (sessionId) => {
   const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -202,14 +257,29 @@ export const stripeWebhook = async (req, res) => {
         const orderId = session.metadata?.orderId;
 
         if (orderId) {
-          await Order.findByIdAndUpdate(orderId, {
-            paymentStatus: "Failed",
-            stripeCheckoutSessionId: session.id,
-            paymentFailureMessage: "Stripe reported that the payment failed.",
-          });
+          await restoreOrderInventory(
+            orderId,
+            "Stripe reported that the payment failed."
+          );
         }
 
         console.log(`Stripe payment failed for session ${session.id}`);
+
+        break;
+      }
+
+      case "checkout.session.expired": {
+        const session = event.data.object;
+        const orderId = session.metadata?.orderId;
+
+        if (orderId) {
+          await restoreOrderInventory(
+            orderId,
+            "The Stripe Checkout Session expired before payment was completed."
+          );
+        }
+
+        console.log(`Stripe Checkout Session expired: ${session.id}`);
 
         break;
       }
