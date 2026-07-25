@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import SEO from "../components/SEO";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function Cart() {
   const {
     cartItems,
@@ -76,7 +78,7 @@ function Cart() {
                 <div className="aspect-square overflow-hidden rounded-xl bg-[#1a1a1a]">
                   {item.image ? (
                     <img
-                    src={item.image}
+                    src={`${API_URL}${item.image}`}
                     alt={item.name}
                     loading="lazy"
                     decoding="async"
