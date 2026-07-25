@@ -100,6 +100,11 @@ const orderSchema = new mongoose.Schema(
       default: null,
     },
     
+    inventoryRestored: {
+      type: Boolean,
+      default: false,
+    },
+    
     paidAt: {
       type: Date,
       default: null,
