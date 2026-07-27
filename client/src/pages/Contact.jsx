@@ -22,8 +22,6 @@ function Contact() {
   function handleSubmit(event) {
     event.preventDefault();
 
-    console.log("Contact form submitted:", formData);
-
     window.alert(
       "Your message form is working. Email delivery will be connected later."
     );

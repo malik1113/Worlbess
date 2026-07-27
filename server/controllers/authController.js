@@ -31,12 +31,14 @@ export const registerUser = async (req, res) => {
       },
     })
   } catch (error) {
+    console.error(`Register user failed: ${error.message}`)
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Unable to register user",
     })
   }
-} // <-- registerUser ENDS HERE
+}
 
 export const loginUser = async (req, res) => {
   try {
@@ -74,20 +76,22 @@ export const loginUser = async (req, res) => {
       },
     })
   } catch (error) {
+    console.error(`Login failed: ${error.message}`)
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Unable to log in",
     })
   }
 }
 export const getProfile = async (req, res) => {
-    res.status(200).json({
-      success: true,
-      user: {
-        id: req.user._id,
-        name: req.user.name,
-        email: req.user.email,
-        role: req.user.role,
-      },
-    })
-  }
+  res.status(200).json({
+    success: true,
+    user: {
+      id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+    },
+  })
+}
