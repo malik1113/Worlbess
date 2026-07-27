@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import globe from "../assets/hero/worlbess-globe.webp"
+import globe from "../assets/hero/earth-pic-2.webp"
 
 
 function Hero() {

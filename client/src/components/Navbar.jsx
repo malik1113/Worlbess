@@ -28,9 +28,9 @@ function Navbar() {
           <Link
             to="/"
             onClick={closeMenu}
-            className="text-2xl font-serif tracking-wider text-yellow-500 md:text-3xl"
+            className="text-2xl font-serif tracking-wider text-green-500 md:text-3xl"
           >
-            WORLBESS GRABBA
+            WORLBESS BODEGA
           </Link>
 
           {/* DESKTOP NAVIGATION */}
