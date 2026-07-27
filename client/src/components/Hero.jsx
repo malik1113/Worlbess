@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
 import globe from "../assets/hero/earth-pic-2.webp"
-
 
 function Hero() {
   return (
@@ -50,13 +50,18 @@ function Hero() {
           </motion.p>
 
 
-          <motion.button
-            className="mt-8 px-10 py-4 border border-yellow-500 rounded-full text-yellow-500 hover:bg-yellow-500 hover:text-black transition duration-300 shadow-lg"
+          <motion.div
+            className="mt-8 inline-block"
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            Shop Collection
-          </motion.button>
+            <Link
+              to="/shop"
+              className="inline-block rounded-full border border-yellow-500 px-10 py-4 text-yellow-500 shadow-lg transition duration-300 hover:bg-yellow-500 hover:text-black"
+            >
+              Shop Collection
+            </Link>
+          </motion.div>
 
         </div>
 
