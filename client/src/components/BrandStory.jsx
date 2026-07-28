@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
 import homeImage from "../assets/products/home-image.webp"
 
 function BrandStory() {
@@ -78,9 +79,12 @@ function BrandStory() {
             </div>
           </div>
 
-          <button className="mt-10 px-8 py-3 border border-yellow-500 rounded-full text-yellow-500 hover:bg-yellow-500 hover:text-black transition duration-300">
+          <Link
+            to="/story"
+            className="mt-10 inline-block rounded-full border border-yellow-500 px-8 py-3 text-yellow-500 transition duration-300 hover:bg-yellow-500 hover:text-black"
+          >
             Read Our Full Story
-          </button>
+          </Link>
         </motion.div>
 
       </div>
