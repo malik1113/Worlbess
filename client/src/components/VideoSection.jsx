@@ -19,7 +19,7 @@ function VideoSection() {
             </p>
   
             <Link
-              to="/story"
+              to="/about"
               className="mt-8 inline-block rounded-full border border-yellow-500 px-8 py-3 text-yellow-500 transition duration-300 hover:bg-yellow-500 hover:text-black"
             >
               Discover Our Story
