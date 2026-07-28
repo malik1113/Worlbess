@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 function VideoSection() {
     return (
       <section className="bg-black py-24">
@@ -17,9 +18,12 @@ function VideoSection() {
               natural materials, and generations of respect for the leaf.
             </p>
   
-            <button className="mt-8 px-8 py-3 border border-yellow-500 rounded-full text-yellow-500 hover:bg-yellow-500 hover:text-black transition duration-300">
+            <Link
+              to="/story"
+              className="mt-8 inline-block rounded-full border border-yellow-500 px-8 py-3 text-yellow-500 transition duration-300 hover:bg-yellow-500 hover:text-black"
+            >
               Discover Our Story
-            </button>
+            </Link>
           </div>
   
           <div className="aspect-video rounded-2xl overflow-hidden border border-yellow-500/30 bg-[#161616] flex items-center justify-center">
