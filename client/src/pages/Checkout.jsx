@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { loadStripe } from "@stripe/stripe-js";
@@ -11,7 +11,10 @@ function Checkout() {
   const { cartItems, cartCount, subtotal } = useCart();
   const { token } = useAuth();
 
-  console.log("JWT Token:", token);
+  const [searchParams] = useSearchParams();
+  const cancellationStarted = useRef(false);
+
+  const [cancellationMessage, setCancellationMessage] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -28,6 +31,82 @@ function Checkout() {
     ageConfirmed: false,
   });
 
+  useEffect(() => {
+    const paymentWasCancelled =
+      searchParams.get("payment") === "cancelled";
+  
+    if (!paymentWasCancelled || !token || cancellationStarted.current) {
+      return;
+    }
+  
+    cancellationStarted.current = true;
+  
+    async function cancelPendingCheckout() {
+      try {
+        const savedCheckout = sessionStorage.getItem(
+          "worlbessPendingCheckout"
+        );
+  
+        if (!savedCheckout) {
+          setCancellationMessage(
+            "Checkout was cancelled. No pending payment session was found."
+          );
+          return;
+        }
+  
+        const { orderId, sessionId } = JSON.parse(savedCheckout);
+  
+        if (!orderId || !sessionId) {
+          sessionStorage.removeItem("worlbessPendingCheckout");
+  
+          setCancellationMessage(
+            "Checkout was cancelled, but the saved payment information was incomplete."
+          );
+          return;
+        }
+  
+        const response = await fetch(
+          `${API_URL}/api/payments/cancel-checkout-session`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              orderId,
+              sessionId,
+            }),
+          }
+        );
+  
+        const data = await response.json();
+  
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Unable to cancel the pending checkout."
+          );
+        }
+  
+        sessionStorage.removeItem("worlbessPendingCheckout");
+  
+        setCancellationMessage(
+          "Payment was cancelled. Your order was cancelled and inventory was restored."
+        );
+  
+        window.history.replaceState({}, "", "/checkout");
+      } catch (error) {
+        console.error("Cancel checkout error:", error);
+  
+        setCancellationMessage(
+          error.message || "Unable to finish cancelling the checkout."
+        );
+      }
+    }
+  
+    cancelPendingCheckout();
+  }, [API_URL, searchParams, token]);
+  
   function handleChange(event) {
     const { name, value, type, checked } = event.target;
 
@@ -128,12 +207,23 @@ function Checkout() {
         );
       }
 
-      if (!paymentData.url) {
-        throw new Error("Stripe did not return a Checkout URL.");
+      if (!paymentData.url || !paymentData.sessionId) {
+        throw new Error(
+          "Stripe did not return complete Checkout Session information."
+        );
       }
-
+      
+      sessionStorage.setItem(
+        "worlbessPendingCheckout",
+        JSON.stringify({
+          orderId,
+          sessionId: paymentData.sessionId,
+        })
+      );
+      
       // Step 3: Send the customer to Stripe's hosted payment page.
       window.location.href = paymentData.url;
+
     } catch (error) {
       console.error("Checkout failed:", error);
       window.alert(error.message);
@@ -147,6 +237,11 @@ function Checkout() {
         description="Complete your secure Worlbess checkout to purchase premium Grabba, tobacco leaf, accessories, and apparel."
       />
       <div className="mx-auto max-w-7xl">
+        {cancellationMessage && (
+        <div className="mb-8 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-center text-yellow-200">
+          {cancellationMessage}
+        </div>
+      )}
         <div className="text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">
             Secure Checkout

@@ -1,29 +1,29 @@
-import mongoose from "mongoose";
-import Product from "../models/Product.js";
-import Order from "../models/Order.js";
-import stripe from "../config/stripe.js";
-import { sendOrderConfirmationEmail } from "../services/emailService.js";
+import mongoose from "mongoose"
+import Product from "../models/Product.js"
+import Order from "../models/Order.js"
+import stripe from "../config/stripe.js"
+import { sendOrderConfirmationEmail } from "../services/emailService.js"
 
 const restoreOrderInventory = async (orderId, failureMessage) => {
-  const databaseSession = await mongoose.startSession();
+  const databaseSession = await mongoose.startSession()
 
   try {
-    let restoredOrder = null;
+    let restoredOrder = null
 
     await databaseSession.withTransaction(async () => {
-      const order = await Order.findById(orderId).session(databaseSession);
+      const order = await Order.findById(orderId).session(databaseSession)
 
       if (!order) {
-        throw new Error(`Order ${orderId} was not found.`);
+        throw new Error(`Order ${orderId} was not found.`)
       }
 
       if (order.paymentStatus === "Paid") {
-        return;
+        return
       }
 
       if (order.inventoryRestored) {
-        restoredOrder = order;
-        return;
+        restoredOrder = order
+        return
       }
 
       for (const item of order.items) {
@@ -37,124 +37,124 @@ const restoreOrderInventory = async (orderId, failureMessage) => {
           {
             session: databaseSession,
           }
-        );
+        )
       }
 
-      order.inventoryRestored = true;
-      order.paymentStatus = "Failed";
-      order.paymentFailureMessage = failureMessage;
+      order.inventoryRestored = true
+      order.paymentStatus = "Failed"
+      order.paymentFailureMessage = failureMessage
 
       await order.save({
         session: databaseSession,
-      });
+      })
 
       restoredOrder = order;
-    });
+    })
 
-    return restoredOrder;
+    return restoredOrder
   } finally {
-    await databaseSession.endSession();
+    await databaseSession.endSession()
   }
-};
+}
 
 const fulfillCheckoutSession = async (sessionId) => {
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const session = await stripe.checkout.sessions.retrieve(sessionId)
 
   if (session.payment_status !== "paid") {
     return {
       paid: false,
       order: null,
-    };
+    }
   }
 
-  const orderId = session.metadata?.orderId;
+  const orderId = session.metadata?.orderId
 
   if (!orderId) {
-    throw new Error("Stripe Checkout Session is missing an order ID.");
+    throw new Error("Stripe Checkout Session is missing an order ID.")
   }
 
-  const order = await Order.findById(orderId);
+  const order = await Order.findById(orderId)
 
   if (!order) {
-    throw new Error(`Order ${orderId} was not found.`);
+    throw new Error(`Order ${orderId} was not found.`)
   }
-  order.paymentStatus = "Paid";
-  order.paidAt = new Date();
-  order.paymentFailureMessage = null;
+  order.paymentStatus = "Paid"
+  order.paidAt = new Date()
+  order.paymentFailureMessage = null
 
   if (session.payment_intent) {
-    order.stripePaymentIntentId = session.payment_intent;
+    order.stripePaymentIntentId = session.payment_intent
   }
 
-  await order.save();
+  await order.save()
 
   // Stripe can retry webhook deliveries. This makes fulfillment idempotent.
   // Send the order confirmation only once.
   if (!order.emailConfirmationSent) {
-    const emailResult = await sendOrderConfirmationEmail(order);
+    const emailResult = await sendOrderConfirmationEmail(order)
 
     if (!emailResult.skipped) {
-      order.emailConfirmationSent = true;
-      order.emailConfirmationSentAt = new Date();
+      order.emailConfirmationSent = true
+      order.emailConfirmationSentAt = new Date()
 
-      await order.save();
+      await order.save()
 
-      console.log(`Order confirmation email sent for order ${order._id}`);
+      console.log(`Order confirmation email sent for order ${order._id}`)
     }
   }
 
   return {
     paid: true,
     order,
-  };
-};
+  }
+}
 
 export const createCheckoutSession = async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { orderId } = req.body
 
     if (!orderId) {
       return res.status(400).json({
         success: false,
         message: "Order ID is required",
-      });
+      })
     }
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId)
 
     if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found",
-      });
+      })
     }
 
     if (order.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to pay for this order",
-      });
+      })
     }
 
     if (order.status === "Cancelled") {
       return res.status(400).json({
         success: false,
         message: "Cancelled orders cannot be paid",
-      });
+      })
     }
 
     if (order.paymentStatus === "Paid") {
       return res.status(400).json({
         success: false,
         message: "This order has already been paid",
-      });
+      })
     }
 
     if (!order.items || order.items.length === 0) {
       return res.status(400).json({
         success: false,
         message: "This order does not contain any items",
-      });
+      })
     }
 
     const lineItems = order.items.map((item) => ({
@@ -169,9 +169,9 @@ export const createCheckoutSession = async (req, res) => {
       },
 
       quantity: item.quantity,
-    }));
+    }))
 
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173"
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -195,48 +195,126 @@ export const createCheckoutSession = async (req, res) => {
         `${clientUrl}/payment-success` + "?session_id={CHECKOUT_SESSION_ID}",
 
       cancel_url: `${clientUrl}/checkout?payment=cancelled`,
-    });
+    })
 
-    order.stripeCheckoutSessionId = session.id;
-    order.paymentStatus = "Unpaid";
+    order.stripeCheckoutSessionId = session.id
+    order.paymentStatus = "Unpaid"
 
-    await order.save();
+    await order.save()
 
     return res.status(201).json({
       success: true,
       message: "Stripe Checkout Session created successfully",
       sessionId: session.id,
       url: session.url,
-    });
+    })
   } catch (error) {
-    console.error("Create Checkout Session error:", error);
+    console.error("Create Checkout Session error:", error)
 
     return res.status(500).json({
       success: false,
       message: "Unable to create Stripe Checkout Session",
-    });
+    })
   }
-};
+}
+
+export const cancelCheckoutSession = async (req, res) => {
+  try {
+    const { orderId, sessionId } = req.body
+
+    if (!orderId || !sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: "Order ID and Checkout Session ID are required",
+      })
+    }
+
+    const order = await Order.findById(orderId)
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      })
+    }
+
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to cancel this checkout",
+      })
+    }
+
+    if (order.stripeCheckoutSessionId !== sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: "Checkout Session does not match this order",
+      })
+    }
+
+    if (order.paymentStatus === "Paid") {
+      return res.status(400).json({
+        success: false,
+        message: "A paid order cannot be cancelled through checkout",
+      })
+    }
+
+    const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId)
+
+    if (checkoutSession.payment_status === "paid") {
+      return res.status(400).json({
+        success: false,
+        message: "Payment has already been completed",
+      })
+    }
+
+    if (checkoutSession.status === "open") {
+      await stripe.checkout.sessions.expire(sessionId)
+    }
+
+    const restoredOrder = await restoreOrderInventory(
+      orderId,
+      "The customer cancelled Stripe Checkout."
+    )
+
+    if (restoredOrder && restoredOrder.status !== "Cancelled") {
+      restoredOrder.status = "Cancelled"
+      await restoredOrder.save()
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Checkout cancelled and inventory restored",
+    })
+  } catch (error) {
+    console.error("Cancel Checkout Session error:", error)
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to cancel the Checkout Session",
+    })
+  }
+}
 
 export const stripeWebhook = async (req, res) => {
-  const signature = req.headers["stripe-signature"];
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const signature = req.headers["stripe-signature"]
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
   if (!webhookSecret) {
     return res.status(500).json({
       success: false,
       message: "Webhook secret is not configured",
-    });
+    })
   }
 
-  let event;
+  let event
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
+    event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret)
   } catch (error) {
-    console.error("Stripe webhook signature error:", error.message);
+    console.error("Stripe webhook signature error:", error.message)
 
-    return res.status(400).send(`Webhook Error: ${error.message}`);
+    return res.status(400).send(`Webhook Error: ${error.message}`)
   }
 
   try {
@@ -245,11 +323,11 @@ export const stripeWebhook = async (req, res) => {
       case "checkout.session.async_payment_succeeded": {
         const session = event.data.object;
 
-        const result = await fulfillCheckoutSession(session.id);
+        const result = await fulfillCheckoutSession(session.id)
 
-        console.log(`Stripe payment confirmed for session ${session.id}`);
+        console.log(`Stripe payment confirmed for session ${session.id}`)
 
-        break;
+        break
       }
 
       case "checkout.session.async_payment_failed": {
