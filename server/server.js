@@ -4,6 +4,7 @@ import helmet from "helmet"
 import dotenv from "dotenv"
 import path from "path"
 import { fileURLToPath } from "url"
+import { configureCloudinary } from "./config/cloudinary.js"
 
 import connectDB from "./config/db.js"
 import productRoutes from "./routes/productRoutes.js"
@@ -19,6 +20,8 @@ const __dirname = path.dirname(__filename)
 dotenv.config({
   path: path.join(__dirname, ".env"),
 })
+
+configureCloudinary()
 
 const app = express()
 const PORT = process.env.PORT || 3001
