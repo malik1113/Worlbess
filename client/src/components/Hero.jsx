@@ -10,8 +10,8 @@ function Hero() {
 
       <motion.div
         className="relative z-10 w-full max-w-7xl mx-auto px-8 grid md:grid-cols-2 items-center gap-10"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
       >
 
@@ -73,6 +73,9 @@ function Hero() {
             <motion.img
                 src={globe}
                 alt="Earth glowing in space for Worlbess"
+                width="1536"
+                height="1024"
+                fetchPriority="high"
                 className="relative z-10 w-full max-w-[560px] rounded-full"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{
