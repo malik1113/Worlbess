@@ -78,7 +78,11 @@ function Cart() {
                 <div className="aspect-square overflow-hidden rounded-xl bg-[#1a1a1a]">
                   {item.image ? (
                     <img
-                    src={`${API_URL}${item.image}`}
+                    src={
+                      item.image?.startsWith("/uploads/")
+                        ? `${API_URL}${item.image}`
+                        : item.image
+                    }
                     alt={item.name}
                     loading="lazy"
                     decoding="async"
