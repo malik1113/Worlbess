@@ -380,7 +380,11 @@ function Shop() {
                 <div className="flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-[#1c1c1c] to-black">
                   {product.image ? (
                     <img
-                    src={`${API_URL}${product.image}`}
+                    src={
+                      product.image?.startsWith("/uploads/")
+                        ? `${API_URL}${product.image}`
+                        : product.image
+                    }
                     alt={product.name}
                     loading="lazy"
                     decoding="async"
@@ -477,7 +481,11 @@ function Shop() {
                   <div className="aspect-square overflow-hidden bg-black">
                     {product.image ? (
                       <img
-                      src={`${API_URL}${product.image}`}
+                      src={
+                        product.image?.startsWith("/uploads/")
+                          ? `${API_URL}${product.image}`
+                          : product.image
+                      }
                       alt={product.name}
                       loading="lazy"
                       decoding="async"

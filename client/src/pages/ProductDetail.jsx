@@ -112,7 +112,11 @@ function ProductDetail() {
         <div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-yellow-500/20 bg-[#111111]">
           {product.image ? (
             <img
-            src={`${API_URL}${product.image}`}
+            src={
+              product.image?.startsWith("/uploads/")
+                ? `${API_URL}${product.image}`
+                : product.image
+            }
             alt={product.name}
             fetchPriority="high"
             decoding="async"
